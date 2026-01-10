@@ -94,7 +94,12 @@ Note that parsing functions like `readfile`, `eat_leading_trailing_whitespace` m
 - [x] Round-trip tests
 
 ### Sprint 17: io.go
-- [x] SKIP – flat-file I/O replaced by SQLite; no parsing needed
+- [x] Item types loader/saver (`loadItemTypes`, `saveItemTypes`)
+- [x] Skills loader/saver (`loadSkills`, `saveSkills`)
+- [x] Character skills loader/saver (`loadCharSkills`, `saveCharSkills`)
+- [x] System config loader (`loadSystemConfig`)
+- [x] New schema: `turn_logs`, `skill_lore`, `system_config` tables
+- [x] Tests for new loaders
 
 ### Sprint 18: check_db
 - [ ] Implement consistency checks

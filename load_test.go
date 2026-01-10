@@ -469,3 +469,167 @@ func TestLoadWorldClearsExisting(t *testing.T) {
 		t.Error("old name 999 not cleared")
 	}
 }
+
+func TestLoadWorldItemTypes(t *testing.T) {
+	db, err := OpenTestDB()
+	if err != nil {
+		t.Fatalf("OpenTestDB: %v", err)
+	}
+	defer db.Close()
+
+	// Insert test item type
+	_, err = db.Exec(`
+		INSERT INTO item_types (id, subkind, name, weight, is_animal, prominent)
+		VALUES (1, 0, 'gold', 0, 0, 0)
+	`)
+	if err != nil {
+		t.Fatalf("insert item_type: %v", err)
+	}
+	_, err = db.Exec(`
+		INSERT INTO item_types (id, subkind, name, weight, is_animal, prominent)
+		VALUES (10, 0, 'peasant', 100, 1, 0)
+	`)
+	if err != nil {
+		t.Fatalf("insert item_type 2: %v", err)
+	}
+
+	e := &Engine{db: db}
+	e.globals.names = make(map[int]string)
+	e.globals.banners = make(map[int]string)
+	e.globals.pluralNames = make(map[int]string)
+	e.globals.charSkills = make(map[int][]*skill_ent)
+
+	err = e.LoadWorld()
+	if err != nil {
+		t.Fatalf("LoadWorld: %v", err)
+	}
+
+	// Verify gold loaded
+	if e.globals.bx[1] == nil {
+		t.Fatal("item 1 (gold) not loaded")
+	}
+	if e.globals.bx[1].kind != T_item {
+		t.Errorf("item 1 kind = %d, want %d", e.globals.bx[1].kind, T_item)
+	}
+	if e.globals.names[1] != "gold" {
+		t.Errorf("item 1 name = %q, want 'gold'", e.globals.names[1])
+	}
+
+	// Verify peasant loaded with weight
+	if e.globals.bx[10] == nil {
+		t.Fatal("item 10 (peasant) not loaded")
+	}
+	if e.globals.bx[10].x_item == nil {
+		t.Fatal("item 10 x_item not allocated")
+	}
+	if e.globals.bx[10].x_item.weight != 100 {
+		t.Errorf("item 10 weight = %d, want 100", e.globals.bx[10].x_item.weight)
+	}
+}
+
+func TestLoadWorldSkills(t *testing.T) {
+	db, err := OpenTestDB()
+	if err != nil {
+		t.Fatalf("OpenTestDB: %v", err)
+	}
+	defer db.Close()
+
+	// Insert test skill
+	_, err = db.Exec(`
+		INSERT INTO skills (id, name, category, is_magic)
+		VALUES (600, 'Shipcraft', 'craft', 0)
+	`)
+	if err != nil {
+		t.Fatalf("insert skill: %v", err)
+	}
+	_, err = db.Exec(`
+		INSERT INTO skills (id, name, category, is_magic)
+		VALUES (800, 'Basic Magic', 'magic', 1)
+	`)
+	if err != nil {
+		t.Fatalf("insert skill 2: %v", err)
+	}
+
+	e := &Engine{db: db}
+	e.globals.names = make(map[int]string)
+	e.globals.banners = make(map[int]string)
+	e.globals.pluralNames = make(map[int]string)
+	e.globals.charSkills = make(map[int][]*skill_ent)
+
+	err = e.LoadWorld()
+	if err != nil {
+		t.Fatalf("LoadWorld: %v", err)
+	}
+
+	// Verify Shipcraft loaded
+	if e.globals.bx[600] == nil {
+		t.Fatal("skill 600 (Shipcraft) not loaded")
+	}
+	if e.globals.bx[600].kind != T_skill {
+		t.Errorf("skill 600 kind = %d, want %d", e.globals.bx[600].kind, T_skill)
+	}
+	if e.globals.names[600] != "Shipcraft" {
+		t.Errorf("skill 600 name = %q, want 'Shipcraft'", e.globals.names[600])
+	}
+
+	// Verify Basic Magic loaded with magic subkind
+	if e.globals.bx[800] == nil {
+		t.Fatal("skill 800 (Basic Magic) not loaded")
+	}
+	if e.globals.bx[800].skind != sub_magic {
+		t.Errorf("skill 800 skind = %d, want %d", e.globals.bx[800].skind, sub_magic)
+	}
+}
+
+func TestLoadWorldCharSkills(t *testing.T) {
+	db, err := OpenTestDB()
+	if err != nil {
+		t.Fatalf("OpenTestDB: %v", err)
+	}
+	defer db.Close()
+
+	// Insert test world with a character
+	insertTestWorld(t, db)
+
+	// Insert skill and char_skill
+	_, err = db.Exec(`
+		INSERT INTO skills (id, name, category, is_magic)
+		VALUES (600, 'Shipcraft', 'craft', 0)
+	`)
+	if err != nil {
+		t.Fatalf("insert skill: %v", err)
+	}
+	_, err = db.Exec(`
+		INSERT INTO char_skills (char_id, skill_id, level, experience)
+		VALUES (1001, 600, 14, 50)
+	`)
+	if err != nil {
+		t.Fatalf("insert char_skill: %v", err)
+	}
+
+	e := &Engine{db: db}
+	e.globals.names = make(map[int]string)
+	e.globals.banners = make(map[int]string)
+	e.globals.pluralNames = make(map[int]string)
+	e.globals.charSkills = make(map[int][]*skill_ent)
+
+	err = e.LoadWorld()
+	if err != nil {
+		t.Fatalf("LoadWorld: %v", err)
+	}
+
+	// Verify character skill loaded
+	skills := e.getCharSkills(1001)
+	if len(skills) != 1 {
+		t.Fatalf("char 1001 skills count = %d, want 1", len(skills))
+	}
+	if skills[0].skill != 600 {
+		t.Errorf("char 1001 skill[0].skill = %d, want 600", skills[0].skill)
+	}
+	if skills[0].days_studied != 14 {
+		t.Errorf("char 1001 skill[0].days_studied = %d, want 14", skills[0].days_studied)
+	}
+	if skills[0].experience != 50 {
+		t.Errorf("char 1001 skill[0].experience = %d, want 50", skills[0].experience)
+	}
+}

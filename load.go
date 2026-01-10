@@ -34,9 +34,24 @@ func (e *Engine) LoadWorld() error {
 		return fmt.Errorf("load char_magic: %w", err)
 	}
 
+	// Load character skills
+	if err := e.loadCharSkills(); err != nil {
+		return fmt.Errorf("load char_skills: %w", err)
+	}
+
 	// Load players
 	if err := e.loadPlayers(); err != nil {
 		return fmt.Errorf("load players: %w", err)
+	}
+
+	// Load item types
+	if err := e.loadItemTypes(); err != nil {
+		return fmt.Errorf("load item_types: %w", err)
+	}
+
+	// Load skills
+	if err := e.loadSkills(); err != nil {
+		return fmt.Errorf("load skills: %w", err)
 	}
 
 	// Load gates
@@ -52,6 +67,11 @@ func (e *Engine) LoadWorld() error {
 	// Load ships
 	if err := e.loadShips(); err != nil {
 		return fmt.Errorf("load ships: %w", err)
+	}
+
+	// Load system config
+	if err := e.loadSystemConfig(); err != nil {
+		return fmt.Errorf("load system_config: %w", err)
 	}
 
 	return nil
@@ -71,6 +91,7 @@ func (e *Engine) clearWorld() {
 	e.globals.names = make(map[int]string)
 	e.globals.banners = make(map[int]string)
 	e.globals.pluralNames = make(map[int]string)
+	e.globals.charSkills = make(map[int][]*skill_ent)
 }
 
 // loadEntities loads all entities from the database.
@@ -521,4 +542,206 @@ func (e *Engine) loadShips() error {
 	}
 
 	return rows.Err()
+}
+
+// loadItemTypes loads item type definitions into entity_item structs.
+func (e *Engine) loadItemTypes() error {
+	rows, err := e.db.Query(`
+		SELECT id, subkind, name, weight, is_animal, prominent
+		FROM item_types
+	`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var id, subkind int
+		var name string
+		var weight, isAnimal, prominent int
+
+		if err := rows.Scan(&id, &subkind, &name, &weight, &isAnimal, &prominent); err != nil {
+			return fmt.Errorf("scan item_type %d: %w", id, err)
+		}
+
+		if id <= 0 || id >= MAX_BOXES {
+			continue
+		}
+
+		// Create box if it doesn't exist
+		if e.globals.bx[id] == nil {
+			e.globals.bx[id] = &box{
+				kind:  T_item,
+				skind: schar(subkind),
+			}
+			e.addToKindChain(id)
+			e.addToSubkindChain(id)
+		}
+
+		// Ensure x_item exists
+		if e.globals.bx[id].x_item == nil {
+			e.globals.bx[id].x_item = &entity_item{}
+		}
+		it := e.globals.bx[id].x_item
+
+		it.weight = short(weight)
+		it.is_man_item = schar(isAnimal)
+		it.prominent = schar(prominent)
+
+		// Set name
+		if name != "" {
+			e.globals.names[id] = name
+		}
+	}
+
+	return rows.Err()
+}
+
+// loadSkills loads skill definitions into entity_skill structs.
+func (e *Engine) loadSkills() error {
+	rows, err := e.db.Query(`
+		SELECT id, name, category, is_magic
+		FROM skills
+	`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var id int
+		var name string
+		var category sql.NullString
+		var isMagic int
+
+		if err := rows.Scan(&id, &name, &category, &isMagic); err != nil {
+			return fmt.Errorf("scan skill %d: %w", id, err)
+		}
+
+		if id <= 0 || id >= MAX_BOXES {
+			continue
+		}
+
+		// Determine subkind based on is_magic
+		subkind := schar(0)
+		if isMagic != 0 {
+			subkind = sub_magic
+		}
+
+		// Create box if it doesn't exist
+		if e.globals.bx[id] == nil {
+			e.globals.bx[id] = &box{
+				kind:  T_skill,
+				skind: subkind,
+			}
+			e.addToKindChain(id)
+			e.addToSubkindChain(id)
+		}
+
+		// Ensure x_skill exists
+		if e.globals.bx[id].x_skill == nil {
+			e.globals.bx[id].x_skill = &entity_skill{}
+		}
+
+		// Set name
+		if name != "" {
+			e.globals.names[id] = name
+		}
+	}
+
+	return rows.Err()
+}
+
+// loadCharSkills loads character skill data.
+func (e *Engine) loadCharSkills() error {
+	rows, err := e.db.Query(`
+		SELECT char_id, skill_id, level, experience
+		FROM char_skills
+	`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var charID, skillID, level, experience int
+
+		if err := rows.Scan(&charID, &skillID, &level, &experience); err != nil {
+			return fmt.Errorf("scan char_skill: %w", err)
+		}
+
+		if e.globals.bx[charID] == nil {
+			continue
+		}
+
+		// Ensure x_char exists
+		if e.globals.bx[charID].x_char == nil {
+			e.globals.bx[charID].x_char = &entity_char{}
+		}
+
+		// Add skill to character's skill list
+		skillEnt := &skill_ent{
+			skill:        skillID,
+			days_studied: level,
+			experience:   short(experience),
+			know:         SKILL_know,
+		}
+
+		// Append to skills list using the C-style plist pattern
+		e.appendCharSkill(charID, skillEnt)
+	}
+
+	return rows.Err()
+}
+
+// loadSystemConfig loads system configuration from game_meta.
+func (e *Engine) loadSystemConfig() error {
+	row := e.db.QueryRow(`
+		SELECT game_name, current_turn, options_json
+		FROM game_meta
+		WHERE id = 1
+	`)
+
+	var gameName string
+	var currentTurn int
+	var optionsJSON sql.NullString
+
+	err := row.Scan(&gameName, &currentTurn, &optionsJSON)
+	if err == sql.ErrNoRows {
+		// No config yet, use defaults
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("scan game_meta: %w", err)
+	}
+
+	// Set the game clock
+	e.globals.sysclock.turn = short(currentTurn)
+
+	return nil
+}
+
+// appendCharSkill appends a skill_ent to a character's skills list.
+// This handles the C-style **skill_ent (plist) pattern.
+func (e *Engine) appendCharSkill(charID int, sk *skill_ent) {
+	ch := e.globals.bx[charID].x_char
+	if ch == nil {
+		return
+	}
+
+	// The skills field is **skill_ent, which in C represents a growable array.
+	// We use unsafe to cast between **skill_ent and *[]*skill_ent.
+	// For simplicity during the port, we store skills in a separate map.
+	if e.globals.charSkills == nil {
+		e.globals.charSkills = make(map[int][]*skill_ent)
+	}
+	e.globals.charSkills[charID] = append(e.globals.charSkills[charID], sk)
+}
+
+// getCharSkills returns the skills for a character.
+func (e *Engine) getCharSkills(charID int) []*skill_ent {
+	if e.globals.charSkills == nil {
+		return nil
+	}
+	return e.globals.charSkills[charID]
 }

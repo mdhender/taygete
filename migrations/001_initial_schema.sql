@@ -258,3 +258,31 @@ CREATE TABLE reports (
   body         TEXT NOT NULL,
   created_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Turn logs (from log/* files)
+CREATE TABLE turn_logs (
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  turn_number  INTEGER NOT NULL,
+  player_id    INTEGER NOT NULL REFERENCES players(id),
+  log_text     TEXT NOT NULL,
+  created_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_turn_logs_turn ON turn_logs(turn_number);
+CREATE INDEX idx_turn_logs_player ON turn_logs(player_id);
+
+-- Skill lore (from lore/* files)
+CREATE TABLE skill_lore (
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  skill_id     INTEGER NOT NULL REFERENCES skills(id),
+  lore_text    TEXT NOT NULL,
+  display_order INTEGER DEFAULT 0
+);
+
+CREATE INDEX idx_skill_lore_skill ON skill_lore(skill_id);
+
+-- System configuration (from system file)
+CREATE TABLE system_config (
+  key          TEXT PRIMARY KEY,
+  value        TEXT NOT NULL
+);
