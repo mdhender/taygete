@@ -82,8 +82,8 @@ Note that parsing functions like `readfile`, `eat_leading_trailing_whitespace` m
 ## Phase 4 – Persistence (S14–S18)
 
 ### Sprint 14: DB schema
-- [ ] Implement schema migrations in Go
-- [ ] `OpenGameDB`, `BeginTurn`, `CommitTurn` helpers
+- [x] Implement schema migrations in Go
+- [x] `OpenGameDB`, `BeginTurn`, `CommitTurn` helpers
 
 ### Sprint 15: LoadWorld
 - [ ] Map DB rows → `bx`/substructures
