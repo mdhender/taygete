@@ -42,8 +42,8 @@ Note that parsing functions like `readfile`, `eat_leading_trailing_whitespace` m
 - [x] Basic `Box` structure and substructure skeletons
 
 ### Sprint 6: accessor functions
-- [ ] `kind`, `subkind`, `valid_box`, `rp_*`/`p_*` analogs
-- [ ] Tests for accessor correctness
+- [x] `kind`, `subkind`, `valid_box`, `rp_*`/`p_*` analogs
+- [x] Tests for accessor correctness
 
 ### Sprint 7: glob.c
 - [ ] Port `glob_init`, `sysclock`, `boxHead`, `subHead`, `loop_*` helpers

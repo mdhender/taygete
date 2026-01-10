@@ -22,6 +22,9 @@ type Engine struct {
 	// use this globals struct for C globals while porting.
 	// as we refactor, these will become state in Engine.
 	globals struct {
+		bx       [MAX_BOXES]*box
+		box_head [T_MAX]int
+		sub_head [SUB_MAX]int
 	}
 }
 
@@ -36,4 +39,15 @@ func NewEngine(db *sql.DB, p *prng.Rand) (*Engine, error) {
 		return nil, err
 	}
 	return e, nil
+}
+
+func init() {
+	db, err := OpenTestDB()
+	if err != nil {
+		panic(err)
+	}
+	teg = &Engine{
+		db:   db,
+		prng: prng.New(rand.NewPCG(0xC0FFEECAFE, 0xBEEFF00D)),
+	}
 }
