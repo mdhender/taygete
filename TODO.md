@@ -58,8 +58,8 @@ Note that parsing functions like `readfile`, `eat_leading_trailing_whitespace` m
 ## Phase 3 – Spatial Model (S9–S13)
 
 ### Sprint 9: loc.c (ownership)
-- [ ] Port `loc_owner`, `region`, `province`, `subloc`
-- [ ] Minimal tests with mock world
+- [x] Port `loc_owner`, `region`, `province`, `subloc`
+- [x] Minimal tests with mock world
 
 ### Sprint 10: loc.c (here-lists)
 - [ ] Port `all_here`, `in_safe_now`, `subloc_here`, `count_loc_structures`

@@ -576,7 +576,5 @@ func (e *Engine) ValidBox(id int) bool {
 // LocDepth returns the depth of a location (region, province, subloc, build).
 // Returns 0 if the entity is not a location.
 func (e *Engine) LocDepth(id int) int {
-	// TODO: implement properly when loc.c is ported
-	// For now, return 0 (unknown)
-	return 0
+	return loc_depth(id)
 }
