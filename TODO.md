@@ -86,8 +86,8 @@ Note that parsing functions like `readfile`, `eat_leading_trailing_whitespace` m
 - [x] `OpenGameDB`, `BeginTurn`, `CommitTurn` helpers
 
 ### Sprint 15: LoadWorld
-- [ ] Map DB rows → `bx`/substructures
-- [ ] Tests with small world fixtures
+- [x] Map DB rows → `bx`/substructures
+- [x] Tests with small world fixtures
 
 ### Sprint 16: SaveWorld
 - [ ] Map `bx` → DB
