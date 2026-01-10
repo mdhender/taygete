@@ -33,6 +33,71 @@ type Engine struct {
 		mount_olympus     int
 		combat_pl         int // Combat log player
 		sysclock          olytime
+
+		// String storage - Go uses strings, not char pointers
+		names        map[int]string // entity names by ID
+		banners      map[int]string // display banners by ID
+		pluralNames  map[int]string // item plural names by ID
+	}
+}
+
+// getName returns the name for entity n.
+func (e *Engine) getName(n int) string {
+	if e.globals.names == nil {
+		return ""
+	}
+	return e.globals.names[n]
+}
+
+// setName sets the name for entity n.
+func (e *Engine) setName(n int, s string) {
+	if e.globals.names == nil {
+		e.globals.names = make(map[int]string)
+	}
+	if s == "" {
+		delete(e.globals.names, n)
+	} else {
+		e.globals.names[n] = s
+	}
+}
+
+// getBanner returns the display banner for entity n.
+func (e *Engine) getBanner(n int) string {
+	if e.globals.banners == nil {
+		return ""
+	}
+	return e.globals.banners[n]
+}
+
+// setBanner sets the display banner for entity n.
+func (e *Engine) setBanner(n int, s string) {
+	if e.globals.banners == nil {
+		e.globals.banners = make(map[int]string)
+	}
+	if s == "" {
+		delete(e.globals.banners, n)
+	} else {
+		e.globals.banners[n] = s
+	}
+}
+
+// getPluralName returns the plural name for item n.
+func (e *Engine) getPluralName(n int) string {
+	if e.globals.pluralNames == nil {
+		return ""
+	}
+	return e.globals.pluralNames[n]
+}
+
+// setPluralName sets the plural name for item n.
+func (e *Engine) setPluralName(n int, s string) {
+	if e.globals.pluralNames == nil {
+		e.globals.pluralNames = make(map[int]string)
+	}
+	if s == "" {
+		delete(e.globals.pluralNames, n)
+	} else {
+		e.globals.pluralNames[n] = s
 	}
 }
 
