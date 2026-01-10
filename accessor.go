@@ -1182,3 +1182,22 @@ func is_prisoner(n int) bool {
 	}
 	return c.prisoner != 0
 }
+
+// player returns the owning player for a character.
+// Walks up the unit_lord chain until it finds a player.
+// Ported from src/u.c.
+func player(n int) int {
+	count := 0
+	for n > 0 && kind(n) != T_player {
+		c := rp_char(n)
+		if c == nil {
+			return 0
+		}
+		n = c.unit_lord
+		count++
+		if count >= 1000 {
+			panic("player: infinite loop detected")
+		}
+	}
+	return n
+}

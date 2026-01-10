@@ -66,8 +66,8 @@ Note that parsing functions like `readfile`, `eat_leading_trailing_whitespace` m
 - [x] Tests for here-list correctness
 
 ### Sprint 11: stack.c
-- [ ] Port stacking logic, movement of stacks
-- [ ] Tests for nested location/stack layout
+- [x] Port stacking logic, movement of stacks
+- [x] Tests for nested location/stack layout
 
 ### Sprint 12: gate.c
 - [ ] Port gates & roads
