@@ -1,2 +1,16 @@
 .idea/
+g2rep.vcxproj
+olylib.vcxproj
+Olympia.vcxproj
+Olympia2 2010.sln
+Utils.sln
+/Dist
+/entab
+/g2rep
+/include
+/mapgen
+/olygui
+/olylib
+/olympia
+/sendmail
 /xlat
