@@ -8,16 +8,19 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/mdhender/prng"
 )
 
 func TestSaveSeed(t *testing.T) {
 	tmpDir := t.TempDir()
 	path := filepath.Join(tmpDir, "seed.json")
 
-	globalPRNGState.pcg = rand.NewPCG(12345, 67890)
-	globalPRNGState.r = rand.New(globalPRNGState.pcg)
+	teg := Engine{
+		prng: prng.New(rand.NewPCG(12345, 67890)),
+	}
 
-	if err := save_seed(path); err != nil {
+	if err := teg.savePrngState(path); err != nil {
 		t.Fatalf("save_seed failed: %v", err)
 	}
 
@@ -48,21 +51,36 @@ func TestLoadSeed(t *testing.T) {
 		t.Fatalf("failed to write seed file: %v", err)
 	}
 
-	if err := load_seed(path); err != nil {
+	teg := Engine{
+		prng: prng.New(rand.NewPCG(12_345, 67_890)),
+	}
+	type state struct {
+		seed1, seed2 uint64
+	}
+
+	want := state{
+		seed1: teg.prng.Uint64(),
+		seed2: teg.prng.Uint64(),
+	}
+
+	if err := teg.restorePrngState(path); err != nil {
 		t.Fatalf("load_seed failed: %v", err)
 	}
 
-	if globalPRNGState.Seed1 != 111 {
-		t.Errorf("expected Seed1=111, got %d", globalPRNGState.Seed1)
+	if teg.prng == nil {
+		t.Fatalf("expected prng to be initialized")
 	}
-	if globalPRNGState.Seed2 != 222 {
-		t.Errorf("expected Seed2=222, got %d", globalPRNGState.Seed2)
+
+	got := state{
+		seed1: teg.prng.Uint64(),
+		seed2: teg.prng.Uint64(),
 	}
-	if globalPRNGState.pcg == nil {
-		t.Error("expected pcg to be initialized")
+
+	if want.seed1 != got.seed1 {
+		t.Errorf("expected seed1=%d, got %d", want.seed1, got.seed1)
 	}
-	if globalPRNGState.r == nil {
-		t.Error("expected r to be initialized")
+	if want.seed2 != got.seed2 {
+		t.Errorf("expected seed2=%d, got %d", want.seed2, got.seed2)
 	}
 }
 
@@ -70,8 +88,12 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 	tmpDir := t.TempDir()
 	path := filepath.Join(tmpDir, "seed.json")
 
-	globalPRNGState.pcg = rand.NewPCG(99999, 88888)
-	globalPRNGState.r = rand.New(globalPRNGState.pcg)
+	teg := Engine{
+		prng: prng.New(rand.NewPCG(99_999, 88_888)),
+	}
+	type state struct {
+		seed1, seed2 uint64
+	}
 
 	// Generate some random numbers to advance state
 	for i := 0; i < 100; i++ {
@@ -79,18 +101,18 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 	}
 
 	// Save state
-	if err := save_seed(path); err != nil {
+	if err := teg.savePrngState(path); err != nil {
 		t.Fatalf("save_seed failed: %v", err)
 	}
 
 	// Generate more numbers and record them
 	expected := make([]int, 10)
 	for i := range expected {
-		expected[i] = rnd(1, 1000)
+		expected[i] = rnd(1, 1_000)
 	}
 
 	// Restore state
-	if err := load_seed(path); err != nil {
+	if err := teg.restorePrngState(path); err != nil {
 		t.Fatalf("load_seed failed: %v", err)
 	}
 
@@ -104,7 +126,10 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 }
 
 func TestLoadSeedFileNotFound(t *testing.T) {
-	err := load_seed("/nonexistent/path/seed.json")
+	teg := Engine{
+		prng: prng.New(rand.NewPCG(99_999, 88_888)),
+	}
+	err := teg.restorePrngState("/nonexistent/path/seed.json")
 	if err == nil {
 		t.Error("expected error for nonexistent file")
 	}
@@ -118,18 +143,23 @@ func TestLoadSeedInvalidJSON(t *testing.T) {
 		t.Fatalf("failed to write seed file: %v", err)
 	}
 
-	err := load_seed(path)
+	teg := Engine{
+		prng: prng.New(rand.NewPCG(99_999, 88_888)),
+	}
+
+	err := teg.restorePrngState(path)
 	if err == nil {
 		t.Error("expected error for invalid JSON")
 	}
 }
 
 func TestRnd(t *testing.T) {
-	globalPRNGState.pcg = rand.NewPCG(12345, 67890)
-	globalPRNGState.r = rand.New(globalPRNGState.pcg)
+	teg := Engine{
+		prng: prng.New(rand.NewPCG(12_345, 67_890)),
+	}
 
 	for i := 0; i < 1000; i++ {
-		got := rnd(1, 10)
+		got := teg.rnd(1, 10)
 		if got < 1 || got > 10 {
 			t.Errorf("rnd(1, 10) = %d, want value in [1, 10]", got)
 		}
@@ -137,11 +167,12 @@ func TestRnd(t *testing.T) {
 }
 
 func TestRndNegativeRange(t *testing.T) {
-	globalPRNGState.pcg = rand.NewPCG(12345, 67890)
-	globalPRNGState.r = rand.New(globalPRNGState.pcg)
+	teg := Engine{
+		prng: prng.New(rand.NewPCG(12_345, 67_890)),
+	}
 
 	for i := 0; i < 1000; i++ {
-		got := rnd(-10, -1)
+		got := teg.rnd(-10, -1)
 		if got < -10 || got > -1 {
 			t.Errorf("rnd(-10, -1) = %d, want value in [-10, -1]", got)
 		}
@@ -149,19 +180,21 @@ func TestRndNegativeRange(t *testing.T) {
 }
 
 func TestRndDeterministic(t *testing.T) {
-	globalPRNGState.pcg = rand.NewPCG(42, 42)
-	globalPRNGState.r = rand.New(globalPRNGState.pcg)
+	teg := Engine{
+		prng: prng.New(rand.NewPCG(42, 42)),
+	}
 
 	first := make([]int, 10)
 	for i := range first {
-		first[i] = rnd(1, 100)
+		first[i] = teg.rnd(1, 100)
 	}
 
-	globalPRNGState.pcg = rand.NewPCG(42, 42)
-	globalPRNGState.r = rand.New(globalPRNGState.pcg)
+	teg = Engine{
+		prng: prng.New(rand.NewPCG(42, 42)),
+	}
 
 	for i, want := range first {
-		got := rnd(1, 100)
+		got := teg.rnd(1, 100)
 		if got != want {
 			t.Errorf("rnd[%d]: got %d, want %d", i, got, want)
 		}

@@ -73,6 +73,7 @@ func main() {
 		},
 	}
 	cmdRoot.AddCommand(cmdGates())
+	cmdRoot.AddCommand(cmdVersion())
 	err := addFlags(cmdRoot)
 	if err != nil {
 		logger.Error(

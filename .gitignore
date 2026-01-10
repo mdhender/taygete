@@ -1,5 +1,7 @@
 .idea/
 g2rep.vcxproj
+go.work
+go.work.sum
 olylib.vcxproj
 Olympia.vcxproj
 Olympia2 2010.sln
@@ -13,5 +15,4 @@ Utils.sln
 /olylib
 /olympia
 /sendmail
-/src
 /xlat

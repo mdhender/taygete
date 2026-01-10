@@ -1,21 +1,32 @@
 # AGENTS.md
 
 ## Build Commands
-- **Go CLI**: `go build ./cmd/xlat` (builds the translator tool)
-- **C Game Engine**: `cd olympia && make` (builds 32-bit Olympia game server)
-- **Clean**: `cd olympia && make clean`
-- **Run tests**: `go test ./...` (no tests exist yet)
-- **Single test**: `go test -run TestName ./path/to/package`
+- **Build**: `go build .` (builds the main package)
+- **Run tests**: `go test ./...`
+- **Single test**: `go test -run TestName .`
 
 ## Architecture
-This is Olympia, a play-by-email strategy game. The codebase has two parts:
-- **olympia/**: Legacy C game engine with combat, magic, NPCs, locations, items, skills
-- **cmd/xlat/**: Go CLI tool (cobra) to translate Olympia data files to JSON
+Olympia is a play-by-email strategy game being ported from 32-bit C to Go.
 
-Key C headers: `olympia/oly.h` (main types/constants), `olympia/code.h`, `olympia/loc.h`
+- **src/**: Original C source (read-only reference, do not modify)
+- **Root package**: Go port (single package, refactor after port complete)
+- **Storage**: SQLite3 replaces legacy flat files
+- **Frontend**: Next.js + Tailwind "Oatmeal" UI Kit (future)
+
+## Porting Approach
+- Port C files to Go with matching names: `src/rnd.c` → `rnd.go`
+- Write unit tests as we port each file
+- Use SQLite3 for data persistence (no flat file parsing)
+- Web frontend replaces email reports
+
+Key C headers for reference: `src/oly.h`, `src/code.h`, `src/loc.h`
 
 ## Code Style
-- **Go**: Use `log/slog` for logging, `cobra` for CLI, standard library preferred
-- **C**: 32-bit compilation (`-m32`), K&R style, macros for accessors (see oly.h)
-- **Naming**: Go uses camelCase; C uses snake_case with prefixes (sk_, item_, sub_)
-- **Errors**: Go returns `error`; C uses return codes
+- **Go**: Use `log/slog` for logging, standard library preferred
+- **Errors**: Go returns `error`
+- **Testing**: Write internal tests alongside each ported file
+- **Naming**: Translate C snake_case names:
+  - Go functions and variables mirror C names
+  - Go enum type names mirror C names
+  - Go struct type names mirror C names
+  - New Go types, functions, and variables use camelCase
