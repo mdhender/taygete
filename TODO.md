@@ -50,8 +50,8 @@ Note that parsing functions like `readfile`, `eat_leading_trailing_whitespace` m
 - [x] Tests for initialization
 
 ### Sprint 8: code.c
-- [ ] Port `int_to_code`, `code_to_int`, naming functions
-- [ ] Tests for ID encoding/decoding
+- [x] Port `int_to_code`, `code_to_int`, naming functions
+- [x] Tests for ID encoding/decoding
 
 ---
 
