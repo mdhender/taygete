@@ -7,6 +7,8 @@
 - **Frontend**: Next.js + Tailwind "Oatmeal" UI
 - **Sprints**: ~50 (reduced from 52 by skipping I/O parsing/reporting)
 
+Note that parsing functions like `readfile`, `eat_leading_trailing_whitespace` may not be needed since we will be saving orders and game state to the database instead of flat files. Deprecated functions should be created with the expected signatures so we can track progress. Deprecated functions must include the "// Deprecated: ...." comment. They should panic with a status message if called.
+
 ---
 
 ## Phase 0 – Setup (S0)
@@ -17,8 +19,8 @@
 ## Phase 1 – Core Utilities (S1–S4)
 
 ### Sprint 1: z.c core (~1k LOC)
-- [ ] Port memory helpers, `ilist`/`plist`, `assert`, `readfile`, string trim/comparators
-- [ ] Tests for `ilist`/`plist`, `eat_leading_trailing_whitespace`, `i_strcmp`
+- [x] Port memory helpers (skipped - Go GC), `ilist`/`plist`, `assert`, `readfile` (deprecated), string trim/comparators
+- [x] Tests for `ilist`/`plist`, `i_strcmp`, `fuzzy_strcmp`
 
 ### Sprint 2: z.c remaining
 - [ ] `lower_array`/`init_lower`, character classification
