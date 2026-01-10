@@ -46,8 +46,8 @@ Note that parsing functions like `readfile`, `eat_leading_trailing_whitespace` m
 - [x] Tests for accessor correctness
 
 ### Sprint 7: glob.c
-- [ ] Port `glob_init`, `sysclock`, `boxHead`, `subHead`, `loop_*` helpers
-- [ ] Tests for initialization
+- [x] Port `glob_init`, `sysclock`, `boxHead`, `subHead`, `loop_*` helpers
+- [x] Tests for initialization
 
 ### Sprint 8: code.c
 - [ ] Port `int_to_code`, `code_to_int`, naming functions

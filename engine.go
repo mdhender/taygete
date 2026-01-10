@@ -25,6 +25,14 @@ type Engine struct {
 		bx       [MAX_BOXES]*box
 		box_head [T_MAX]int
 		sub_head [SUB_MAX]int
+
+		// game state flags (from glob.c)
+		show_day          bool
+		post_has_been_run bool
+		garrison_magic    int
+		mount_olympus     int
+		combat_pl         int // Combat log player
+		sysclock          olytime
 	}
 }
 
@@ -50,4 +58,6 @@ func init() {
 		db:   db,
 		prng: prng.New(rand.NewPCG(0xC0FFEECAFE, 0xBEEFF00D)),
 	}
+	// initialize game state flags
+	teg.globals.garrison_magic = 999
 }
