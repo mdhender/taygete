@@ -102,8 +102,12 @@ Note that parsing functions like `readfile`, `eat_leading_trailing_whitespace` m
 - [x] Tests for new loaders
 
 ### Sprint 18: check_db
-- [ ] Implement consistency checks
-- [ ] Tests for integrity issues
+
+NOTE: Full skill tree validation (offered/research lists) requires refactoring entity_skill to use Go slices instead of C-style ilist pointers.
+
+- [x] Implement consistency checks
+- [x] Tests for integrity issues
+- [x] Refactor entity_skill to use Go slices instead of C-style ilist pointers.
 
 ---
 

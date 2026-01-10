@@ -5,6 +5,7 @@ package taygete
 import (
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 )
 
@@ -96,6 +97,11 @@ func IListInsert(l *[]int, pos, n int) {
 	*l = append(*l, 0)
 	copy((*l)[pos+1:], (*l)[pos:])
 	(*l)[pos] = n
+}
+
+// IListSort sorts the list in ascending order.
+func IListSort(l []int) {
+	sort.Ints(l)
 }
 
 // PListLen returns the length of the pointer list.

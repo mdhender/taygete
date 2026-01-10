@@ -322,8 +322,8 @@ type entity_skill struct {
 	time_to_learn  int   /* days of study req'd to learn skill */
 	required_skill int   /* skill required to learn this skill */
 	np_req         int   /* noble points required to learn */
-	offered        ilist /* skills learnable after this one */
-	research       ilist /* skills researchable with this one */
+	offered        []int /* skills learnable after this one (refactored from ilist) */
+	research       []int /* skills researchable with this one (refactored from ilist) */
 
 	req      **req_ent /* ilist of items required for use or cast */
 	produced int       /* simple production skill result */
