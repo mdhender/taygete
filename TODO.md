@@ -38,8 +38,8 @@ Note that parsing functions like `readfile`, `eat_leading_trailing_whitespace` m
 ## Phase 2 – Types & Globals (S5–S8)
 
 ### Sprint 5: types.go
-- [ ] All `T_*`, `sub_*`, `item_*`, `sk_*` constants from `oly.h`
-- [ ] Basic `Box` structure and substructure skeletons
+- [x] All `T_*`, `sub_*`, `item_*`, `sk_*` constants from `oly.h`
+- [x] Basic `Box` structure and substructure skeletons
 
 ### Sprint 6: accessor functions
 - [ ] `kind`, `subkind`, `valid_box`, `rp_*`/`p_*` analogs
