@@ -3,159 +3,146 @@
 package taygete
 
 import (
-	"encoding/json"
+	"log/slog"
 	"math/rand/v2"
-	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/mdhender/prng"
 )
 
 func TestSaveSeed(t *testing.T) {
-	tmpDir := t.TempDir()
-	path := filepath.Join(tmpDir, "seed.json")
+	db, err := OpenTestDB()
+	if err != nil {
+		t.Fatalf("OpenTestDB: %v", err)
+	}
+	defer db.Close()
 
 	teg := Engine{
-		prng: prng.New(rand.NewPCG(12345, 67890)),
+		db:     db,
+		logger: slog.Default(),
+		prng:   prng.New(rand.NewPCG(12345, 67890)),
 	}
 
-	if err := teg.savePrngState(path); err != nil {
-		t.Fatalf("save_seed failed: %v", err)
+	if err := teg.savePrngState("test"); err != nil {
+		t.Fatalf("savePrngState failed: %v", err)
 	}
 
-	data, err := os.ReadFile(path)
+	var state []byte
+	err = db.QueryRow("SELECT state FROM prng_state WHERE name = 'test'").Scan(&state)
 	if err != nil {
-		t.Fatalf("failed to read seed file: %v", err)
+		t.Fatalf("failed to read prng_state: %v", err)
 	}
 
-	var state struct {
-		Seed1 uint64 `json:"seed1,omitempty"`
-		Seed2 uint64 `json:"seed2,omitempty"`
-	}
-	if err := json.Unmarshal(data, &state); err != nil {
-		t.Fatalf("seed file is not valid JSON: %v", err)
-	}
-
-	if state.Seed1 == 0 && state.Seed2 == 0 {
-		t.Error("expected non-zero seeds in saved state")
+	if len(state) == 0 {
+		t.Error("expected non-empty state blob")
 	}
 }
 
 func TestLoadSeed(t *testing.T) {
-	tmpDir := t.TempDir()
-	path := filepath.Join(tmpDir, "seed.json")
-
-	seedJSON := `{"seed1": 111, "seed2": 222}`
-	if err := os.WriteFile(path, []byte(seedJSON), 0o644); err != nil {
-		t.Fatalf("failed to write seed file: %v", err)
+	db, err := OpenTestDB()
+	if err != nil {
+		t.Fatalf("OpenTestDB: %v", err)
 	}
+	defer db.Close()
 
 	teg := Engine{
-		prng: prng.New(rand.NewPCG(12_345, 67_890)),
-	}
-	type state struct {
-		seed1, seed2 uint64
-	}
-
-	want := state{
-		seed1: teg.prng.Uint64(),
-		seed2: teg.prng.Uint64(),
+		db:     db,
+		logger: slog.Default(),
+		prng:   prng.New(rand.NewPCG(12_345, 67_890)),
 	}
 
-	if err := teg.restorePrngState(path); err != nil {
-		t.Fatalf("load_seed failed: %v", err)
+	// Save current state
+	if err := teg.savePrngState("test"); err != nil {
+		t.Fatalf("savePrngState failed: %v", err)
 	}
 
-	if teg.prng == nil {
-		t.Fatalf("expected prng to be initialized")
+	// Generate some values
+	want1 := teg.prng.Uint64()
+	want2 := teg.prng.Uint64()
+
+	// Restore state
+	if err := teg.restorePrngState("test"); err != nil {
+		t.Fatalf("restorePrngState failed: %v", err)
 	}
 
-	got := state{
-		seed1: teg.prng.Uint64(),
-		seed2: teg.prng.Uint64(),
-	}
+	// Should get same values
+	got1 := teg.prng.Uint64()
+	got2 := teg.prng.Uint64()
 
-	if want.seed1 != got.seed1 {
-		t.Errorf("expected seed1=%d, got %d", want.seed1, got.seed1)
+	if want1 != got1 {
+		t.Errorf("expected value1=%d, got %d", want1, got1)
 	}
-	if want.seed2 != got.seed2 {
-		t.Errorf("expected seed2=%d, got %d", want.seed2, got.seed2)
+	if want2 != got2 {
+		t.Errorf("expected value2=%d, got %d", want2, got2)
 	}
 }
 
 func TestSaveLoadRoundTrip(t *testing.T) {
-	tmpDir := t.TempDir()
-	path := filepath.Join(tmpDir, "seed.json")
+	db, err := OpenTestDB()
+	if err != nil {
+		t.Fatalf("OpenTestDB: %v", err)
+	}
+	defer db.Close()
 
 	teg := Engine{
-		prng: prng.New(rand.NewPCG(99_999, 88_888)),
-	}
-	type state struct {
-		seed1, seed2 uint64
+		db:     db,
+		logger: slog.Default(),
+		prng:   prng.New(rand.NewPCG(99_999, 88_888)),
 	}
 
 	// Generate some random numbers to advance state
 	for i := 0; i < 100; i++ {
-		rnd(1, 100)
+		teg.rnd(1, 100)
 	}
 
 	// Save state
-	if err := teg.savePrngState(path); err != nil {
-		t.Fatalf("save_seed failed: %v", err)
+	if err := teg.savePrngState("checkpoint"); err != nil {
+		t.Fatalf("savePrngState failed: %v", err)
 	}
 
 	// Generate more numbers and record them
 	expected := make([]int, 10)
 	for i := range expected {
-		expected[i] = rnd(1, 1_000)
+		expected[i] = teg.rnd(1, 1_000)
 	}
 
 	// Restore state
-	if err := teg.restorePrngState(path); err != nil {
-		t.Fatalf("load_seed failed: %v", err)
+	if err := teg.restorePrngState("checkpoint"); err != nil {
+		t.Fatalf("restorePrngState failed: %v", err)
 	}
 
 	// Generate numbers again - should match
 	for i, want := range expected {
-		got := rnd(1, 1000)
+		got := teg.rnd(1, 1000)
 		if got != want {
 			t.Errorf("rnd[%d]: got %d, want %d", i, got, want)
 		}
 	}
 }
 
-func TestLoadSeedFileNotFound(t *testing.T) {
-	teg := Engine{
-		prng: prng.New(rand.NewPCG(99_999, 88_888)),
+func TestLoadSeedNotFound(t *testing.T) {
+	db, err := OpenTestDB()
+	if err != nil {
+		t.Fatalf("OpenTestDB: %v", err)
 	}
-	err := teg.restorePrngState("/nonexistent/path/seed.json")
-	if err == nil {
-		t.Error("expected error for nonexistent file")
-	}
-}
-
-func TestLoadSeedInvalidJSON(t *testing.T) {
-	tmpDir := t.TempDir()
-	path := filepath.Join(tmpDir, "seed.json")
-
-	if err := os.WriteFile(path, []byte("not valid json"), 0o644); err != nil {
-		t.Fatalf("failed to write seed file: %v", err)
-	}
+	defer db.Close()
 
 	teg := Engine{
-		prng: prng.New(rand.NewPCG(99_999, 88_888)),
+		db:     db,
+		logger: slog.Default(),
+		prng:   prng.New(rand.NewPCG(99_999, 88_888)),
 	}
 
-	err := teg.restorePrngState(path)
+	err = teg.restorePrngState("nonexistent")
 	if err == nil {
-		t.Error("expected error for invalid JSON")
+		t.Error("expected error for nonexistent state")
 	}
 }
 
 func TestRnd(t *testing.T) {
 	teg := Engine{
-		prng: prng.New(rand.NewPCG(12_345, 67_890)),
+		logger: slog.Default(),
+		prng:   prng.New(rand.NewPCG(12_345, 67_890)),
 	}
 
 	for i := 0; i < 1000; i++ {
@@ -168,7 +155,8 @@ func TestRnd(t *testing.T) {
 
 func TestRndNegativeRange(t *testing.T) {
 	teg := Engine{
-		prng: prng.New(rand.NewPCG(12_345, 67_890)),
+		logger: slog.Default(),
+		prng:   prng.New(rand.NewPCG(12_345, 67_890)),
 	}
 
 	for i := 0; i < 1000; i++ {
@@ -181,7 +169,8 @@ func TestRndNegativeRange(t *testing.T) {
 
 func TestRndDeterministic(t *testing.T) {
 	teg := Engine{
-		prng: prng.New(rand.NewPCG(42, 42)),
+		logger: slog.Default(),
+		prng:   prng.New(rand.NewPCG(42, 42)),
 	}
 
 	first := make([]int, 10)
@@ -190,7 +179,8 @@ func TestRndDeterministic(t *testing.T) {
 	}
 
 	teg = Engine{
-		prng: prng.New(rand.NewPCG(42, 42)),
+		logger: slog.Default(),
+		prng:   prng.New(rand.NewPCG(42, 42)),
 	}
 
 	for i, want := range first {
