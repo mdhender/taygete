@@ -317,17 +317,46 @@ func fuzzy_strcmp(one, two string) bool {
 	return false
 }
 
-// toLowerByte converts a single byte to lowercase.
-func toLowerByte(c byte) byte {
-	if c >= 'A' && c <= 'Z' {
-		return c - 'A' + 'a'
+// lower_array is a lookup table for fast lowercase conversion.
+// Must be initialized by calling init_lower() before use.
+var lower_array [256]byte
+
+// init_lower initializes the lower_array lookup table for fast case conversion.
+func init_lower() {
+	for i := 0; i < 256; i++ {
+		lower_array[i] = byte(i)
 	}
-	return c
+	for i := byte('A'); i <= byte('Z'); i++ {
+		lower_array[i] = i - 'A' + 'a'
+	}
+}
+
+// toLowerByte converts a single byte to lowercase using the lookup table.
+func toLowerByte(c byte) byte {
+	return lower_array[c]
 }
 
 // lcase converts a string to lowercase.
 func lcase(s string) string {
 	return strings.ToLower(s)
+}
+
+// isalpha returns true if c is an alphabetic character (a-z or A-Z).
+func isalpha(c byte) bool {
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
+}
+
+// isdigit returns true if c is a digit (0-9).
+func isdigit(c byte) bool {
+	return c >= '0' && c <= '9'
+}
+
+// toupper converts a single byte to uppercase.
+func toupper(c byte) byte {
+	if c >= 'a' && c <= 'z' {
+		return c - 'a' + 'A'
+	}
+	return c
 }
 
 // asfail panics with a formatted assertion failure message.

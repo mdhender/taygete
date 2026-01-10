@@ -23,8 +23,8 @@ Note that parsing functions like `readfile`, `eat_leading_trailing_whitespace` m
 - [x] Tests for `ilist`/`plist`, `i_strcmp`, `fuzzy_strcmp`
 
 ### Sprint 2: z.c remaining
-- [ ] `lower_array`/`init_lower`, character classification
-- [ ] Tests for case folding & fuzzy comparisons
+- [x] `lower_array`/`init_lower`, character classification
+- [x] Tests for case folding & fuzzy comparisons
 
 ### Sprint 3: rnd.c
 - [x] Port MD5-based RNG (`rnd.go`)
