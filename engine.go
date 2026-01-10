@@ -33,6 +33,7 @@ type Engine struct {
 		mount_olympus     int
 		combat_pl         int // Combat log player
 		sysclock          olytime
+		evening           bool // are we in the evening phase?
 
 		// String storage - Go uses strings, not char pointers
 		names        map[int]string // entity names by ID
