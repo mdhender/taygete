@@ -42,6 +42,12 @@ type Engine struct {
 
 		// Skill storage - workaround for C-style **skill_ent plist
 		charSkills map[int][]*skill_ent // character skills by char ID
+
+		// Player units - workaround for C-style ilist in entity_player
+		playerUnits map[int][]int
+
+		// Inventory storage - workaround for C-style **item_ent in box
+		inventories map[int][]item_ent
 	}
 }
 
