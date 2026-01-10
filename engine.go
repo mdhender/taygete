@@ -39,6 +39,9 @@ type Engine struct {
 		names        map[int]string // entity names by ID
 		banners      map[int]string // display banners by ID
 		pluralNames  map[int]string // item plural names by ID
+
+		// Skill storage - workaround for C-style **skill_ent plist
+		charSkills map[int][]*skill_ent // character skills by char ID
 	}
 }
 

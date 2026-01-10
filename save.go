@@ -46,6 +46,21 @@ func (e *Engine) SaveWorld() error {
 		return fmt.Errorf("save char_magic: %w", err)
 	}
 
+	// Save character skills
+	if err := e.saveCharSkills(tx); err != nil {
+		return fmt.Errorf("save char_skills: %w", err)
+	}
+
+	// Save item types
+	if err := e.saveItemTypes(tx); err != nil {
+		return fmt.Errorf("save item_types: %w", err)
+	}
+
+	// Save skills
+	if err := e.saveSkills(tx); err != nil {
+		return fmt.Errorf("save skills: %w", err)
+	}
+
 	// Save gates
 	if err := e.saveGates(tx); err != nil {
 		return fmt.Errorf("save gates: %w", err)
@@ -71,6 +86,7 @@ func (e *Engine) SaveWorld() error {
 // clearDBTables clears all entity-related tables in reverse FK order.
 func (e *Engine) clearDBTables(tx *sql.Tx) error {
 	tables := []string{
+		"char_skills",
 		"char_magic",
 		"ships",
 		"storms",
@@ -79,6 +95,8 @@ func (e *Engine) clearDBTables(tx *sql.Tx) error {
 		"players",
 		"locations",
 		"entities",
+		"item_types",
+		"skills",
 	}
 
 	for _, table := range tables {
@@ -413,6 +431,99 @@ func (e *Engine) saveShips(tx *sql.Tx) error {
 
 		if _, err := stmt.Exec(id, locID, capacity, stormBind, movingSince); err != nil {
 			return fmt.Errorf("insert ship %d: %w", id, err)
+		}
+	}
+
+	return nil
+}
+
+// saveItemTypes saves item type data to the item_types table.
+func (e *Engine) saveItemTypes(tx *sql.Tx) error {
+	stmt, err := tx.Prepare(`
+		INSERT INTO item_types (id, subkind, name, weight, is_animal, prominent)
+		VALUES (?, ?, ?, ?, ?, ?)
+	`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	for id := 1; id < MAX_BOXES; id++ {
+		b := e.globals.bx[id]
+		if b == nil || b.kind != T_item {
+			continue
+		}
+
+		name := e.globals.names[id]
+		weight, isAnimal, prominent := 0, 0, 0
+
+		if b.x_item != nil {
+			weight = int(b.x_item.weight)
+			isAnimal = int(b.x_item.is_man_item)
+			prominent = int(b.x_item.prominent)
+		}
+
+		if _, err := stmt.Exec(id, int(b.skind), name, weight, isAnimal, prominent); err != nil {
+			return fmt.Errorf("insert item_type %d: %w", id, err)
+		}
+	}
+
+	return nil
+}
+
+// saveSkills saves skill data to the skills table.
+func (e *Engine) saveSkills(tx *sql.Tx) error {
+	stmt, err := tx.Prepare(`
+		INSERT INTO skills (id, name, category, is_magic)
+		VALUES (?, ?, ?, ?)
+	`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	for id := 1; id < MAX_BOXES; id++ {
+		b := e.globals.bx[id]
+		if b == nil || b.kind != T_skill {
+			continue
+		}
+
+		name := e.globals.names[id]
+		isMagic := 0
+		if b.skind == sub_magic {
+			isMagic = 1
+		}
+
+		var category sql.NullString
+
+		if _, err := stmt.Exec(id, name, category, isMagic); err != nil {
+			return fmt.Errorf("insert skill %d: %w", id, err)
+		}
+	}
+
+	return nil
+}
+
+// saveCharSkills saves character skill data to the char_skills table.
+func (e *Engine) saveCharSkills(tx *sql.Tx) error {
+	stmt, err := tx.Prepare(`
+		INSERT INTO char_skills (char_id, skill_id, level, experience)
+		VALUES (?, ?, ?, ?)
+	`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	// Save skills from the charSkills map
+	for charID, skills := range e.globals.charSkills {
+		for _, sk := range skills {
+			if sk == nil {
+				continue
+			}
+			if _, err := stmt.Exec(charID, sk.skill, sk.days_studied, int(sk.experience)); err != nil {
+				return fmt.Errorf("insert char_skill %d/%d: %w", charID, sk.skill, err)
+			}
 		}
 	}
 
