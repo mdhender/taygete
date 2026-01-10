@@ -74,8 +74,8 @@ Note that parsing functions like `readfile`, `eat_leading_trailing_whitespace` m
 - [x] Tests for `road_dest`, `road_hidden`
 
 ### Sprint 13: storm.c/cloud.c
-- [ ] Port `ship_moving`, `ship_gone`, `char_moving`, `char_gone`
-- [ ] Tests for movement timing
+- [x] Port `ship_moving`, `ship_gone`, `char_moving`, `char_gone`
+- [x] Tests for movement timing
 
 ---
 
