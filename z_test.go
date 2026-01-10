@@ -336,3 +336,117 @@ func Test_lcase(t *testing.T) {
 		t.Errorf("lcase failed on mixed case")
 	}
 }
+
+func Test_init_lower(t *testing.T) {
+	init_lower()
+
+	for i := 0; i < 256; i++ {
+		c := byte(i)
+		if c >= 'A' && c <= 'Z' {
+			expected := c - 'A' + 'a'
+			if lower_array[c] != expected {
+				t.Errorf("lower_array[%c] = %c, want %c", c, lower_array[c], expected)
+			}
+		} else {
+			if lower_array[c] != c {
+				t.Errorf("lower_array[%d] = %d, want %d (non-uppercase should be unchanged)", c, lower_array[c], c)
+			}
+		}
+	}
+}
+
+func Test_toLowerByte(t *testing.T) {
+	init_lower()
+
+	tests := []struct {
+		in   byte
+		want byte
+	}{
+		{'A', 'a'},
+		{'Z', 'z'},
+		{'M', 'm'},
+		{'a', 'a'},
+		{'z', 'z'},
+		{'0', '0'},
+		{'9', '9'},
+		{' ', ' '},
+		{'\t', '\t'},
+		{0, 0},
+		{255, 255},
+	}
+
+	for _, tt := range tests {
+		got := toLowerByte(tt.in)
+		if got != tt.want {
+			t.Errorf("toLowerByte(%d) = %d, want %d", tt.in, got, tt.want)
+		}
+	}
+}
+
+func Test_isalpha(t *testing.T) {
+	for c := byte('a'); c <= 'z'; c++ {
+		if !isalpha(c) {
+			t.Errorf("isalpha(%c) = false, want true", c)
+		}
+	}
+	for c := byte('A'); c <= 'Z'; c++ {
+		if !isalpha(c) {
+			t.Errorf("isalpha(%c) = false, want true", c)
+		}
+	}
+	for c := byte('0'); c <= '9'; c++ {
+		if isalpha(c) {
+			t.Errorf("isalpha(%c) = true, want false", c)
+		}
+	}
+	if isalpha(' ') {
+		t.Error("isalpha(' ') = true, want false")
+	}
+	if isalpha('\t') {
+		t.Error("isalpha('\\t') = true, want false")
+	}
+}
+
+func Test_isdigit(t *testing.T) {
+	for c := byte('0'); c <= '9'; c++ {
+		if !isdigit(c) {
+			t.Errorf("isdigit(%c) = false, want true", c)
+		}
+	}
+	for c := byte('a'); c <= 'z'; c++ {
+		if isdigit(c) {
+			t.Errorf("isdigit(%c) = true, want false", c)
+		}
+	}
+	for c := byte('A'); c <= 'Z'; c++ {
+		if isdigit(c) {
+			t.Errorf("isdigit(%c) = true, want false", c)
+		}
+	}
+	if isdigit(' ') {
+		t.Error("isdigit(' ') = true, want false")
+	}
+}
+
+func Test_toupper(t *testing.T) {
+	tests := []struct {
+		in   byte
+		want byte
+	}{
+		{'a', 'A'},
+		{'z', 'Z'},
+		{'m', 'M'},
+		{'A', 'A'},
+		{'Z', 'Z'},
+		{'0', '0'},
+		{'9', '9'},
+		{' ', ' '},
+	}
+
+	for _, tt := range tests {
+		got := toupper(tt.in)
+		if got != tt.want {
+			t.Errorf("toupper(%c) = %c, want %c", tt.in, got, tt.want)
+		}
+	}
+}
