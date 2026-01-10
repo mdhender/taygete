@@ -90,8 +90,8 @@ Note that parsing functions like `readfile`, `eat_leading_trailing_whitespace` m
 - [x] Tests with small world fixtures
 
 ### Sprint 16: SaveWorld
-- [ ] Map `bx` → DB
-- [ ] Round-trip tests
+- [x] Map `bx` → DB
+- [x] Round-trip tests
 
 ### Sprint 17: io.go
 - [x] SKIP – flat-file I/O replaced by SQLite; no parsing needed
