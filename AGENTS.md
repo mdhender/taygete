@@ -14,7 +14,6 @@ Olympia is a play-by-email strategy game being ported from 32-bit C to Go.
 - **Frontend**: Next.js + Tailwind "Oatmeal" UI Kit (future)
 
 ## Porting Approach
-- Port C global values to Engine globals
 - Port C files to Go with matching names: `src/rnd.c` → `rnd.go`
 - Port C functions to Go functions with matching names
   - Keep C function signatures as close as possible to the original
@@ -27,6 +26,13 @@ Olympia is a play-by-email strategy game being ported from 32-bit C to Go.
 - Web frontend replaces email reports
 
 Key C headers for reference: `src/oly.h`, `src/code.h`, `src/loc.h`
+
+## C Globals
+C globals fall into two categories:
+
+1. **Constants** (configuration, display strings, lookup tables): Use package-level `const` or `var` with a comment `// (treat as const)`. These do not change during gameplay.
+
+2. **State** (game clock, flags modified during turns): Add to `Engine.globals` struct. Initialize in `init()` if needed via `teg`.
 
 ## Code Style
 - **Go**: Use `log/slog` for logging, standard library preferred
