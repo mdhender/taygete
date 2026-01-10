@@ -62,8 +62,8 @@ Note that parsing functions like `readfile`, `eat_leading_trailing_whitespace` m
 - [x] Minimal tests with mock world
 
 ### Sprint 10: loc.c (here-lists)
-- [ ] Port `all_here`, `in_safe_now`, `subloc_here`, `count_loc_structures`
-- [ ] Tests for here-list correctness
+- [x] Port `all_here`, `in_safe_now`, `subloc_here`, `count_loc_structures`
+- [x] Tests for here-list correctness
 
 ### Sprint 11: stack.c
 - [ ] Port stacking logic, movement of stacks

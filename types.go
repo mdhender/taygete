@@ -35,7 +35,7 @@ type olytime struct {
 
 type loc_info struct {
 	where     int
-	here_list ilist
+	here_list []int
 }
 
 type char = int8
