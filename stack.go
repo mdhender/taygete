@@ -793,9 +793,22 @@ func move_stack(who, dest int) {
 	// TODO: Implement in later sprint (movement)
 }
 
-// Deprecated: set_lord not yet implemented.
+// set_lord sets the lord (owner) of a character.
+// Ported from src/swear.c (simplified implementation for Sprint 25.8).
 func set_lord(who, new_lord, k, lev int) {
-	// TODO: Implement in later sprint (loyalty)
+	c := rp_char(who)
+	if c == nil {
+		return
+	}
+
+	oldLord := c.unit_lord
+	c.unit_lord = new_lord
+	c.loy_kind = schar(k)
+	c.loy_rate = lev
+
+	if oldLord != new_lord && oldLord != 0 {
+		c.prev_lord = oldLord
+	}
 }
 
 // Deprecated: set_loyal not yet implemented.
@@ -803,9 +816,33 @@ func set_loyal(who, k, lev int) {
 	// TODO: Implement in later sprint (loyalty)
 }
 
-// Deprecated: unit_deserts not yet implemented.
+// unit_deserts handles a unit deserting to a new player.
+// Ported from src/swear.c (simplified implementation for Sprint 25.8).
 func unit_deserts(who, to_who int, loy_check bool, k, lev int) {
-	// TODO: Implement in later sprint (loyalty)
+	if to_who == 0 {
+		char_reclaim(who)
+		return
+	}
+
+	set_lord(who, to_who, k, lev)
+}
+
+// char_reclaim removes a character from the game, freeing resources.
+// Ported from src/u.c lines 83-92.
+func char_reclaim(who int) {
+	if kind(who) != T_char {
+		return
+	}
+
+	leave_stack(who)
+
+	old_loc := loc(who)
+	if old_loc > 0 {
+		remove_from_here_list(old_loc, who)
+		p_loc_info(who).where = 0
+	}
+
+	delete_box(who)
 }
 
 // Deprecated: put_back_cookie not yet implemented.
@@ -858,11 +895,7 @@ func get_parse_arg(c *command, i int) string {
 	return ""
 }
 
-// Deprecated: stack_has_item not yet implemented.
-func stack_has_item(who, item int) int {
-	// TODO: Implement in later sprint (items)
-	return 0
-}
+// stack_has_item is implemented in inventory.go
 
 // Deprecated: beast_capturable not yet implemented.
 func beast_capturable(who int) bool {

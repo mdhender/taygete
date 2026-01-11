@@ -136,12 +136,10 @@ NOTE: Full skill tree validation (offered/research lists) requires refactoring e
 - [x] Full port, integrate into turn end
 
 ### Sprint 25: u.c, c1.c/c2.c subset
-- [ ] Helper modules and easiest command implementations
-- [ ] Unit tests for those commands
+- [ ] See sprints/SPRINT25.md
 
 ### Sprint 26: u.c, c1.c/c2.c remainder
-- [ ] Helper modules and command implementations
-- [ ] Unit tests for those commands
+- [ ] See sprints/SPRINT26.md
 
 ---
 

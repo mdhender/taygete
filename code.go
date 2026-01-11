@@ -659,21 +659,10 @@ func cap_str(s string) string {
 	return string(runes)
 }
 
-// nice_num formats a number with commas.
+// nice_num converts 0-10 to English words, otherwise uses comma_num.
+// Port of C nice_num() from u.c.
 func nice_num(n int) string {
-	if n < 1_000 {
-		return fmt.Sprintf("%d", n)
-	}
-	// Simple comma formatting
-	s := fmt.Sprintf("%d", n)
-	result := ""
-	for i, c := range s {
-		if i > 0 && (len(s)-i)%3 == 0 {
-			result += ","
-		}
-		result += string(c)
-	}
-	return result
+	return nice_num_words(n)
 }
 
 // is_port_city returns true if the location is a port city.

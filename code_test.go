@@ -276,14 +276,25 @@ func TestNiceNum(t *testing.T) {
 		input  int
 		expect string
 	}{
-		{0, "0"},
-		{1, "1"},
+		{0, "zero"},
+		{1, "one"},
+		{2, "two"},
+		{3, "three"},
+		{4, "four"},
+		{5, "five"},
+		{6, "six"},
+		{7, "seven"},
+		{8, "eight"},
+		{9, "nine"},
+		{10, "ten"},
+		{11, "11"},
 		{999, "999"},
 		{1000, "1,000"},
 		{1234, "1,234"},
 		{12345, "12,345"},
 		{123456, "123,456"},
 		{1234567, "1,234,567"},
+		{-1, "-1"}, // negative numbers use comma_num
 	}
 
 	for _, tc := range tests {
@@ -341,6 +352,14 @@ func TestAllocBoxDeleteBox(t *testing.T) {
 
 func TestChangeBoxKind(t *testing.T) {
 	testID := 1002
+
+	// Reset chains to avoid stale references from other tests
+	for i := range teg.globals.box_head {
+		teg.globals.box_head[i] = 0
+	}
+	for i := range teg.globals.sub_head {
+		teg.globals.sub_head[i] = 0
+	}
 
 	// Allocate as char
 	teg.globals.bx[testID] = nil

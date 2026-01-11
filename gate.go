@@ -95,9 +95,4 @@ func check_gate_here(who, gate int) bool {
 	return true
 }
 
-// diff_region returns true if two entities are in different regions.
-// Used to check if teleportation is possible.
-// Ported from src/u.c.
-func diff_region(a, b int) bool {
-	return region(a) != region(b)
-}
+
