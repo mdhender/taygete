@@ -155,18 +155,36 @@ func (e *Engine) olytimeIncrement() {
 
 func (e *Engine) initLocsTouched()         {} // stub
 func (e *Engine) initWeatherViews()        {} // stub
-func (e *Engine) initWaitList()            {} // stub
-func (e *Engine) initCollectList()         {} // stub
-func (e *Engine) initialCommandLoad()      {} // stub
+func (e *Engine) initWaitList()    {} // stub
+func (e *Engine) initCollectList() {} // stub
+
+// initialCommandLoad loads initial commands for all characters and players.
+// Port of C initial_command_load() from input.c.
+func (e *Engine) initialCommandLoad() {
+	e.initialCommandLoadImpl()
+}
 func (e *Engine) queueNpcOrders()          {} // stub
 func (e *Engine) pingGarrisons()           {} // stub
 func (e *Engine) checkTokenUnits()         {} // stub
 func (e *Engine) processInterruptedUnits() {} // stub
 func (e *Engine) processPlayerOrders()     {} // stub
 func (e *Engine) scanCharItemLore()        {} // stub
-func (e *Engine) matchAllTrades()          {} // stub
-func (e *Engine) dailyCommandLoop()        {} // stub
-func (e *Engine) dailyEvents()             {} // stub
+func (e *Engine) matchAllTrades() {} // stub
+
+// dailyCommandLoop runs the command processing loop for one day.
+// Port of C daily_loop logic from input.c.
+func (e *Engine) dailyCommandLoop() {
+	// Reset auto-attack flag at start of day
+	e.globals.autoAttackFlag = true
+
+	// Start phase: execute loaded commands in priority order
+	e.start_phase()
+
+	// Evening phase: process running commands
+	e.evening_phase()
+}
+
+func (e *Engine) dailyEvents() {} // stub
 
 // Stubbed handlers for PostMonth
 // These will be fully implemented in later sprints.

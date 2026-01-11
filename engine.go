@@ -56,6 +56,11 @@ type Engine struct {
 		// Turn processing state (from day.c / input.c)
 		monthDone     bool // set when monthly processing completes
 		autoQuitTurns int  // turns without orders before auto-quit (0 = disabled)
+
+		// Command scheduling (from input.c - Sprint 22)
+		cmdQueues      *commandQueues // scheduling queues for command execution
+		immediate      bool           // true during immediate command execution
+		autoAttackFlag bool           // check for auto-attacks once per day
 	}
 }
 
