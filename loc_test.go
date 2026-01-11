@@ -675,3 +675,254 @@ func TestSetWhere(t *testing.T) {
 		t.Errorf("set_where failed: loc(2004) = %d, want 1003", loc(2004))
 	}
 }
+
+// setupRegionTestWorld creates a test world with multiple regions:
+//
+//	Normal Region (1000) - sub_region
+//	  └── Province (1001) - sub_forest
+//	        └── Character (2001)
+//	Faery Region (1100) - sub_region
+//	  └── Province (1101) - sub_forest
+//	        └── Character (2101)
+//	Hades Region (1200) - sub_region
+//	  └── Province (1201) - sub_forest (hidden)
+func setupRegionTestWorld(t *testing.T) func() {
+	t.Helper()
+
+	// Save old region values
+	oldFaery := teg.globals.faeryRegion
+	oldHades := teg.globals.hadesRegion
+	oldNowhere := teg.globals.nowhereRegion
+	oldCloud := teg.globals.cloudRegion
+	oldTunnel := teg.globals.tunnelRegion
+	oldUnder := teg.globals.underRegion
+	oldNprov := teg.globals.nprov
+
+	// Set up special region IDs
+	teg.globals.faeryRegion = 1100
+	teg.globals.hadesRegion = 1200
+	teg.globals.nowhereRegion = 0
+	teg.globals.cloudRegion = 0
+	teg.globals.tunnelRegion = 0
+	teg.globals.underRegion = 0
+	teg.globals.nprov = 0 // reset cache
+
+	// Normal region
+	teg.globals.bx[1000] = &box{kind: T_loc, skind: sub_region}
+	teg.globals.bx[1001] = &box{kind: T_loc, skind: sub_forest}
+	teg.globals.bx[2001] = &box{kind: T_char}
+
+	teg.globals.bx[1000].x_loc_info.where = 0
+	teg.globals.bx[1001].x_loc_info.where = 1000
+	teg.globals.bx[2001].x_loc_info.where = 1001
+
+	// Faery region
+	teg.globals.bx[1100] = &box{kind: T_loc, skind: sub_region}
+	teg.globals.bx[1101] = &box{kind: T_loc, skind: sub_forest}
+	teg.globals.bx[2101] = &box{kind: T_char}
+
+	teg.globals.bx[1100].x_loc_info.where = 0
+	teg.globals.bx[1101].x_loc_info.where = 1100
+	teg.globals.bx[2101].x_loc_info.where = 1101
+
+	// Hades region with hidden province
+	teg.globals.bx[1200] = &box{kind: T_loc, skind: sub_region}
+	teg.globals.bx[1201] = &box{kind: T_loc, skind: sub_forest, x_loc: &entity_loc{hidden: 1}}
+	teg.globals.bx[2201] = &box{kind: T_char}
+
+	teg.globals.bx[1200].x_loc_info.where = 0
+	teg.globals.bx[1201].x_loc_info.where = 1200
+	teg.globals.bx[2201].x_loc_info.where = 1201
+
+	return func() {
+		teg.globals.bx[1000] = nil
+		teg.globals.bx[1001] = nil
+		teg.globals.bx[2001] = nil
+		teg.globals.bx[1100] = nil
+		teg.globals.bx[1101] = nil
+		teg.globals.bx[2101] = nil
+		teg.globals.bx[1200] = nil
+		teg.globals.bx[1201] = nil
+		teg.globals.bx[2201] = nil
+
+		teg.globals.faeryRegion = oldFaery
+		teg.globals.hadesRegion = oldHades
+		teg.globals.nowhereRegion = oldNowhere
+		teg.globals.cloudRegion = oldCloud
+		teg.globals.tunnelRegion = oldTunnel
+		teg.globals.underRegion = oldUnder
+		teg.globals.nprov = oldNprov
+	}
+}
+
+func TestLocHidden(t *testing.T) {
+	cleanup := setupRegionTestWorld(t)
+	defer cleanup()
+
+	tests := []struct {
+		name     string
+		id       int
+		expected bool
+	}{
+		{"normal province (not hidden)", 1001, false},
+		{"faery province (not hidden)", 1101, false},
+		{"hades province (hidden)", 1201, true},
+		{"no x_loc", 1000, false},
+		{"invalid box", 0, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := loc_hidden(tt.id)
+			if got != tt.expected {
+				t.Errorf("loc_hidden(%d) = %v, want %v", tt.id, got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestGreaterRegion(t *testing.T) {
+	cleanup := setupRegionTestWorld(t)
+	defer cleanup()
+
+	tests := []struct {
+		name     string
+		who      int
+		expected int
+	}{
+		{"char in normal region", 2001, 0},
+		{"province in normal region", 1001, 0},
+		{"normal region itself", 1000, 0},
+		{"char in faery", 2101, 1100},
+		{"province in faery", 1101, 1100},
+		{"faery region itself", 1100, 1100},
+		{"char in hades", 2201, 1200},
+		{"province in hades", 1201, 1200},
+		{"hades region itself", 1200, 1200},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := greater_region(tt.who)
+			if got != tt.expected {
+				t.Errorf("greater_region(%d) = %d, want %d", tt.who, got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestDiffRegionGreater(t *testing.T) {
+	cleanup := setupRegionTestWorld(t)
+	defer cleanup()
+
+	tests := []struct {
+		name     string
+		a, b     int
+		expected bool
+	}{
+		{"same normal region", 2001, 1001, false},
+		{"same faery region", 2101, 1101, false},
+		{"normal vs faery", 2001, 2101, true},
+		{"normal vs hades", 2001, 2201, true},
+		{"faery vs hades", 2101, 2201, true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := diff_region(tt.a, tt.b)
+			if got != tt.expected {
+				t.Errorf("diff_region(%d, %d) = %v, want %v", tt.a, tt.b, got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestInFaery(t *testing.T) {
+	cleanup := setupRegionTestWorld(t)
+	defer cleanup()
+
+	if in_faery(2001) {
+		t.Error("in_faery(2001) should be false for normal region")
+	}
+	if !in_faery(2101) {
+		t.Error("in_faery(2101) should be true for faery region")
+	}
+	if in_faery(2201) {
+		t.Error("in_faery(2201) should be false for hades region")
+	}
+}
+
+func TestInHades(t *testing.T) {
+	cleanup := setupRegionTestWorld(t)
+	defer cleanup()
+
+	if in_hades(2001) {
+		t.Error("in_hades(2001) should be false for normal region")
+	}
+	if in_hades(2101) {
+		t.Error("in_hades(2101) should be false for faery region")
+	}
+	if !in_hades(2201) {
+		t.Error("in_hades(2201) should be true for hades region")
+	}
+}
+
+func TestLookup(t *testing.T) {
+	table := []string{"north", "east", "south", "west"}
+
+	tests := []struct {
+		name     string
+		s        string
+		expected int
+	}{
+		{"exact match", "north", 0},
+		{"case insensitive", "NORTH", 0},
+		{"mixed case", "NoRtH", 0},
+		{"middle match", "south", 2},
+		{"last match", "west", 3},
+		{"no match", "up", -1},
+		{"partial no match", "nor", -1},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := lookup(table, tt.s)
+			if got != tt.expected {
+				t.Errorf("lookup(table, %q) = %d, want %d", tt.s, got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestClearTemps(t *testing.T) {
+	cleanup := setupRegionTestWorld(t)
+	defer cleanup()
+
+	// Set temp values on locations
+	teg.globals.bx[1000].temp = 42
+	teg.globals.bx[1001].temp = 99
+	teg.globals.bx[1100].temp = 7
+
+	// Need to set up kind chain for iteration
+	teg.globals.box_head[T_loc] = 1000
+	teg.globals.bx[1000].x_next_kind = 1001
+	teg.globals.bx[1001].x_next_kind = 1100
+	teg.globals.bx[1100].x_next_kind = 1101
+	teg.globals.bx[1101].x_next_kind = 1200
+	teg.globals.bx[1200].x_next_kind = 1201
+	teg.globals.bx[1201].x_next_kind = 0
+
+	// Set temp on one
+	teg.globals.bx[1001].temp = 123
+
+	// Clear temps for T_loc
+	clear_temps(T_loc)
+
+	// Verify all are cleared
+	locs := []int{1000, 1001, 1100, 1101, 1200, 1201}
+	for _, id := range locs {
+		if teg.globals.bx[id].temp != 0 {
+			t.Errorf("clear_temps: bx[%d].temp = %d, want 0", id, teg.globals.bx[id].temp)
+		}
+	}
+}

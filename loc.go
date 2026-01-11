@@ -364,10 +364,119 @@ func mark_loc_stack_known(stack, where int) {
 	}
 }
 
-// set_known marks that a player has visited or knows about a location.
-// TODO: Implement in a later sprint (requires player.known sparse array).
-// Ported from src/u.c line 2208.
-func set_known(who, i int) {
-	// This requires the player's "known" sparse array implementation.
-	// For now, this is a no-op until Sprint 44 (player system).
+// loc_hidden returns true if the location is hidden.
+// Ported from src/u.c lines 2284-2293.
+func loc_hidden(n int) bool {
+	l := rp_loc(n)
+	if l == nil {
+		return false
+	}
+	return l.hidden != 0
 }
+
+// nprovinces returns the total count of provinces in the world.
+// The result is cached after first computation.
+// Ported from src/u.c lines 2317-2332.
+func nprovinces() int {
+	if teg.globals.nprov > 0 {
+		return teg.globals.nprov
+	}
+
+	for id := teg.KindFirst(T_loc); id > 0; id = teg.KindNext(id) {
+		if loc_depth(id) == LOC_province {
+			teg.globals.nprov++
+		}
+	}
+	return teg.globals.nprov
+}
+
+// greater_region returns the "greater region" containing who.
+// Returns 0 for normal world regions (not Faery, Hades, Nowhere, Cloud, Tunnel, or Under).
+// Returns the special region ID for entities in those realms.
+// Ported from src/u.c lines 2415-2430.
+func greater_region(who int) int {
+	reg := region(who)
+
+	if reg != teg.globals.faeryRegion &&
+		reg != teg.globals.hadesRegion &&
+		reg != teg.globals.nowhereRegion &&
+		reg != teg.globals.cloudRegion &&
+		reg != teg.globals.tunnelRegion &&
+		reg != teg.globals.underRegion {
+		return 0
+	}
+	return reg
+}
+
+// diff_region returns true if two entities are in different greater regions.
+// Used to check if teleportation is possible between locations.
+// Ported from src/u.c lines 2433-2436.
+func diff_region(a, b int) bool {
+	return greater_region(a) != greater_region(b)
+}
+
+// clear_temps clears the temp field on all entities of the given kind.
+// Ported from src/u.c lines 1213-1222.
+func clear_temps(k schar) {
+	for id := teg.KindFirst(int(k)); id > 0; id = teg.KindNext(id) {
+		if b := teg.globals.bx[id]; b != nil {
+			b.temp = 0
+		}
+	}
+}
+
+// lookup searches a string table for a case-insensitive match.
+// Returns the index of the match, or -1 if not found.
+// Ported from src/u.c lines 1415-1426.
+func lookup(table []string, s string) int {
+	for i, entry := range table {
+		if strcasecmp(entry, s) == 0 {
+			return i
+		}
+	}
+	return -1
+}
+
+// strcasecmp performs a case-insensitive string comparison.
+// Returns 0 if strings are equal (ignoring case).
+func strcasecmp(a, b string) int {
+	if len(a) != len(b) {
+		if len(a) < len(b) {
+			return -1
+		}
+		return 1
+	}
+	for i := 0; i < len(a); i++ {
+		ca, cb := a[i], b[i]
+		if ca >= 'A' && ca <= 'Z' {
+			ca += 'a' - 'A'
+		}
+		if cb >= 'A' && cb <= 'Z' {
+			cb += 'a' - 'A'
+		}
+		if ca != cb {
+			if ca < cb {
+				return -1
+			}
+			return 1
+		}
+	}
+	return 0
+}
+
+// in_faery returns true if n is in the Faery region.
+func in_faery(n int) bool {
+	return region(n) == teg.globals.faeryRegion
+}
+
+// in_hades returns true if n is in the Hades region.
+func in_hades(n int) bool {
+	return region(n) == teg.globals.hadesRegion
+}
+
+// in_clouds returns true if n is in the Cloud region.
+func in_clouds(n int) bool {
+	return region(n) == teg.globals.cloudRegion
+}
+
+

@@ -308,7 +308,12 @@ func TestDiffRegion(t *testing.T) {
 	defer clearBx()
 	clearBx()
 
-	// Create two regions
+	// Save and set special region IDs
+	oldFaery := teg.globals.faeryRegion
+	teg.globals.faeryRegion = 3
+	defer func() { teg.globals.faeryRegion = oldFaery }()
+
+	// Create normal regions (1 and 2) and Faery region (3)
 	teg.globals.bx[1] = &box{
 		kind:  T_loc,
 		skind: sub_region,
@@ -317,8 +322,12 @@ func TestDiffRegion(t *testing.T) {
 		kind:  T_loc,
 		skind: sub_region,
 	}
+	teg.globals.bx[3] = &box{
+		kind:  T_loc,
+		skind: sub_region,
+	}
 
-	// Provinces in different regions
+	// Provinces in different normal regions
 	teg.globals.bx[100] = &box{
 		kind:       T_loc,
 		skind:      sub_plain,
@@ -330,18 +339,32 @@ func TestDiffRegion(t *testing.T) {
 		x_loc_info: loc_info{where: 2},
 	}
 
-	// Same region
+	// Same region as 100
 	teg.globals.bx[300] = &box{
 		kind:       T_loc,
 		skind:      sub_plain,
 		x_loc_info: loc_info{where: 1},
 	}
 
-	if !diff_region(100, 200) {
-		t.Error("diff_region(100, 200) should be true (different regions)")
+	// Province in Faery
+	teg.globals.bx[400] = &box{
+		kind:       T_loc,
+		skind:      sub_plain,
+		x_loc_info: loc_info{where: 3},
+	}
+
+	// diff_region checks greater_region, which returns 0 for normal world regions.
+	// Two normal regions both return greater_region=0, so diff_region is false.
+	if diff_region(100, 200) {
+		t.Error("diff_region(100, 200) should be false (both in normal world)")
 	}
 
 	if diff_region(100, 300) {
 		t.Error("diff_region(100, 300) should be false (same region)")
+	}
+
+	// Normal vs Faery should be different
+	if !diff_region(100, 400) {
+		t.Error("diff_region(100, 400) should be true (normal vs faery)")
 	}
 }

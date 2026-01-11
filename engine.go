@@ -78,6 +78,19 @@ type Engine struct {
 
 		// Immediate mode state (from immed.c - Sprint 23)
 		immedSeeAll bool // reveal all hidden features in immediate mode
+
+		// Player knowledge sets (Sprint 25.2)
+		// Maps player ID -> set of known entity IDs
+		playerKnowledge map[int]map[int]bool
+
+		// Region helpers (Sprint 25.6)
+		nprov          int // cached province count (0 = not computed)
+		faeryRegion    int // Faery realm region ID
+		hadesRegion    int // Hades realm region ID
+		nowhereRegion  int // Nowhere region ID
+		cloudRegion    int // Cloud realm region ID
+		tunnelRegion   int // Tunnel realm region ID
+		underRegion    int // Underground realm region ID
 	}
 }
 
@@ -138,6 +151,35 @@ func (e *Engine) setPluralName(n int, s string) {
 		delete(e.globals.pluralNames, n)
 	} else {
 		e.globals.pluralNames[n] = s
+	}
+}
+
+// getPlayerKnowledge returns the knowledge set for player pl.
+func (e *Engine) getPlayerKnowledge(pl int) map[int]bool {
+	if e.globals.playerKnowledge == nil {
+		return nil
+	}
+	return e.globals.playerKnowledge[pl]
+}
+
+// setPlayerKnowledge marks entity i as known to player pl.
+func (e *Engine) setPlayerKnowledge(pl, i int) {
+	if e.globals.playerKnowledge == nil {
+		e.globals.playerKnowledge = make(map[int]map[int]bool)
+	}
+	if e.globals.playerKnowledge[pl] == nil {
+		e.globals.playerKnowledge[pl] = make(map[int]bool)
+	}
+	e.globals.playerKnowledge[pl][i] = true
+}
+
+// clearPlayerKnowledge clears all knowledge for player pl.
+func (e *Engine) clearPlayerKnowledge(pl int) {
+	if e.globals.playerKnowledge == nil {
+		return
+	}
+	if known := e.globals.playerKnowledge[pl]; known != nil {
+		clear_know_rec(known)
 	}
 }
 
