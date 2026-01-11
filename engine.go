@@ -52,6 +52,10 @@ type Engine struct {
 		// Order queues - maps player ID -> (unit ID -> OrderQueue)
 		// Replaces C entity_player.orders plist
 		orderQueues map[int]map[int]*OrderQueue
+
+		// Turn processing state (from day.c / input.c)
+		monthDone     bool // set when monthly processing completes
+		autoQuitTurns int  // turns without orders before auto-quit (0 = disabled)
 	}
 }
 

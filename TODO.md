@@ -121,8 +121,8 @@ NOTE: Full skill tree validation (offered/research lists) requires refactoring e
 - [x] Load orders from DB `orders` table
 
 ### Sprint 21: day.c skeleton
-- [ ] `process_orders`, `post_month` with stubbed handlers
-- [ ] Tests for no-op turn processing
+- [x] `process_orders`, `post_month` with stubbed handlers
+- [x] Tests for no-op turn processing
 
 ### Sprint 22: Command lifecycle
 - [ ] `STATE_LOAD`/`RUN`/`ERROR`/`DONE` mapping
