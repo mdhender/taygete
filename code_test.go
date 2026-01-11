@@ -1,4 +1,18 @@
-// Copyright (c) 2026 Michael D Henderson. All rights reserved.
+// taygete - a game engine for a game.
+// Copyright (c) 2026 Michael D Henderson.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package taygete
 
@@ -66,12 +80,12 @@ func TestIntToCode(t *testing.T) {
 
 		// CNN format (lucky locs 56760-58759)
 		// Format: letters2[b], digit a, digit n where offset = b*100 + a*10 + n
-		{56760, "a00"},  // 0*100 + 0*10 + 0 = 0
-		{56761, "a01"},  // 0*100 + 0*10 + 1 = 1
-		{56770, "a10"},  // 0*100 + 1*10 + 0 = 10
-		{56860, "b00"},  // 1*100 + 0*10 + 0 = 100
-		{57560, "k00"},  // 8*100 + 0*10 + 0 = 800 (k is at index 8)
-		{58759, "z99"},  // 19*100 + 9*10 + 9 = 1999 (z is at index 19)
+		{56760, "a00"}, // 0*100 + 0*10 + 0 = 0
+		{56761, "a01"}, // 0*100 + 0*10 + 1 = 1
+		{56770, "a10"}, // 0*100 + 1*10 + 0 = 10
+		{56860, "b00"}, // 1*100 + 0*10 + 0 = 100
+		{57560, "k00"}, // 8*100 + 0*10 + 0 = 800 (k is at index 8)
+		{58759, "z99"}, // 19*100 + 9*10 + 9 = 1999 (z is at index 19)
 
 		// Regions (58760-58999) - numeric
 		{58760, "58760"},
@@ -79,13 +93,13 @@ func TestIntToCode(t *testing.T) {
 
 		// CNNN format (sublocs 59000-78999)
 		// Format: letters2[a], digits n (3 digits) where offset = a*1000 + n
-		{59000, "a000"},  // 0*1000 + 0 = 0
-		{59001, "a001"},  // 0*1000 + 1 = 1
-		{59999, "a999"},  // 0*1000 + 999 = 999
-		{60000, "b000"},  // 1*1000 + 0 = 1000
-		{67000, "k000"},  // 8*1000 + 0 = 8000 (k is at index 8)
-		{78000, "z000"},  // 19*1000 + 0 = 19000 (z is at index 19)
-		{78999, "z999"},  // 19*1000 + 999 = 19999
+		{59000, "a000"}, // 0*1000 + 0 = 0
+		{59001, "a001"}, // 0*1000 + 1 = 1
+		{59999, "a999"}, // 0*1000 + 999 = 999
+		{60000, "b000"}, // 1*1000 + 0 = 1000
+		{67000, "k000"}, // 8*1000 + 0 = 8000 (k is at index 8)
+		{78000, "z000"}, // 19*1000 + 0 = 19000 (z is at index 19)
+		{78999, "z999"}, // 19*1000 + 999 = 19999
 
 		// Storms (79000+) - numeric
 		{79000, "79000"},

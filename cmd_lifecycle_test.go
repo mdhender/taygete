@@ -1,4 +1,18 @@
-// Copyright (c) 2026 Michael D Henderson. All rights reserved.
+// taygete - a game engine for a game.
+// Copyright (c) 2026 Michael D Henderson.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package taygete
 
@@ -308,8 +322,8 @@ func TestEveningPhase(t *testing.T) {
 
 	c := e.p_command(who)
 	c.who = who
-	c.wait = 3       // 3 days to complete
-	c.status = TRUE  // command is in progress (success so far)
+	c.wait = 3      // 3 days to complete
+	c.status = TRUE // command is in progress (success so far)
 	c.days_executing = 0
 	e.set_state(c, STATE_RUN, 0)
 

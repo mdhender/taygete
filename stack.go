@@ -1,4 +1,18 @@
-// Copyright (c) 2026 Michael D Henderson. All rights reserved.
+// taygete - a game engine for a game.
+// Copyright (c) 2026 Michael D Henderson.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 // stack.go - Stacking logic ported from src/stack.c
 
@@ -763,8 +777,6 @@ func vector_add(who int) {
 	// TODO: Implement in later sprint (output/reporting)
 }
 
-
-
 // Deprecated: touch_loc not yet implemented.
 func touch_loc(who int) {
 	// TODO: Implement in later sprint (day.c)
@@ -800,8 +812,6 @@ func unit_deserts(who, to_who int, loy_check bool, k, lev int) {
 func put_back_cookie(who int) {
 	// TODO: Implement in later sprint (npc)
 }
-
-
 
 // Deprecated: take_unit_items not yet implemented.
 func take_unit_items(from, to, how int) {

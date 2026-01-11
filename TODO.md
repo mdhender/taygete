@@ -129,8 +129,8 @@ NOTE: Full skill tree validation (offered/research lists) requires refactoring e
 - [x] Tests for scheduling/priorities
 
 ### Sprint 23: immed.c
-- [ ] Immediate commands
-- [ ] Tests for immediate operations
+- [x] Immediate commands
+- [x] Tests for immediate operations
 
 ### Sprint 24: check.c
 - [ ] Full port, integrate into turn end
