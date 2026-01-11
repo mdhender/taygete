@@ -355,7 +355,25 @@ func (e *Engine) checkNowhere(result *CheckResult) {
 // checkSkills checks skill tree consistency.
 // Verifies that skills have valid learn times and valid skill tree references.
 // Ported from src/check.c check_skills().
+//
+// Checks performed:
+// 1. Warn if learn_time is 0
+// 2. Warn about orphaned subskills (skills with ID >= 9000 that are their own school)
+// 3. Check that offered/research skills have correct school references
+// 4. Check for skills offered by multiple parents
+// 5. Warn about non-offered skills
 func (e *Engine) checkSkills(result *CheckResult) {
+	parentOfSkill := make(map[int]int)
+
+	for _, sk := range e.Skills() {
+		if sk >= 9000 && skill_school(sk) == sk {
+			result.AddWarning("orphaned subskill %s", box_code(sk))
+		}
+		if e.globals.bx[sk] != nil {
+			e.globals.bx[sk].temp = 0
+		}
+	}
+
 	for _, sk := range e.Skills() {
 		if learn_time(sk) == 0 {
 			result.AddWarning("learn time of %s is 0", box_name(sk))
@@ -369,13 +387,57 @@ func (e *Engine) checkSkills(result *CheckResult) {
 		for _, child := range s.offered {
 			if kind(child) != T_skill {
 				result.AddError("skill %s offered list contains non-skill %s", box_name(sk), box_code(child))
+				continue
+			}
+
+			if prev, exists := parentOfSkill[child]; exists {
+				result.AddWarning("both %s and %s offer skill %s",
+					box_name(sk), box_name(prev), box_code(child))
+			} else {
+				parentOfSkill[child] = sk
+			}
+
+			if skill_school(child) != sk {
+				result.AddWarning("%s offers %s, but %s is in school %s",
+					box_name(sk), box_code(child), box_code(child), box_code(skill_school(child)))
+			}
+
+			if e.globals.bx[child] != nil {
+				e.globals.bx[child].temp = sk
 			}
 		}
 
 		for _, child := range s.research {
 			if kind(child) != T_skill {
 				result.AddError("skill %s research list contains non-skill %s", box_name(sk), box_code(child))
+				continue
 			}
+
+			if prev, exists := parentOfSkill[child]; exists {
+				result.AddWarning("both %s and %s offer skill %s",
+					box_name(sk), box_name(prev), box_code(child))
+			} else {
+				parentOfSkill[child] = sk
+			}
+
+			if skill_school(child) != sk {
+				result.AddWarning("%s offers %s, but %s is in school %s",
+					box_name(sk), box_code(child), box_code(child), box_code(skill_school(child)))
+			}
+
+			if e.globals.bx[child] != nil {
+				e.globals.bx[child].temp = sk
+			}
+		}
+	}
+
+	for _, sk := range e.Skills() {
+		if skill_school(sk) == sk {
+			continue
+		}
+
+		if e.globals.bx[sk] != nil && e.globals.bx[sk].temp == 0 {
+			result.AddWarning("non-offered skill %s", box_name(sk))
 		}
 	}
 }
