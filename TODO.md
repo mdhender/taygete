@@ -125,8 +125,8 @@ NOTE: Full skill tree validation (offered/research lists) requires refactoring e
 - [x] Tests for no-op turn processing
 
 ### Sprint 22: Command lifecycle
-- [ ] `STATE_LOAD`/`RUN`/`ERROR`/`DONE` mapping
-- [ ] Tests for scheduling/priorities
+- [x] `STATE_LOAD`/`RUN`/`ERROR`/`DONE` mapping
+- [x] Tests for scheduling/priorities
 
 ### Sprint 23: immed.c
 - [ ] Immediate commands
