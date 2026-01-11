@@ -592,3 +592,10 @@ func (e *Engine) ValidBox(id int) bool {
 func (e *Engine) LocDepth(id int) int {
 	return loc_depth(id)
 }
+
+// Package-level accessor functions for special regions
+// These provide access to the region IDs stored in engine globals.
+
+var cloud_region int  // Cloud realm region ID
+var hades_region int  // Hades realm region ID
+var faery_region int  // Faery realm region ID

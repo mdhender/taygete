@@ -382,11 +382,12 @@ func TestDropPlayer(t *testing.T) {
 		if valid_box(playerID) {
 			t.Error("player should be deleted")
 		}
-		if valid_box(char1) {
-			t.Error("char1 should be deleted")
+		// Characters are converted to T_deadchar via char_reclaim/kill_char, not deleted
+		if kind(char1) != T_deadchar {
+			t.Errorf("char1 should be T_deadchar, got kind %d", kind(char1))
 		}
-		if valid_box(char2) {
-			t.Error("char2 should be deleted")
+		if kind(char2) != T_deadchar {
+			t.Errorf("char2 should be T_deadchar, got kind %d", kind(char2))
 		}
 	})
 }
@@ -403,22 +404,19 @@ func TestCharReclaim(t *testing.T) {
 
 	p := p_loc_info(locID)
 	p.here_list = append(p.here_list, charID)
+	p_char(charID).unit_lord = indep_player
 
-	t.Run("removes character from stack and deletes", func(t *testing.T) {
+	t.Run("marks character for melting and converts to deadchar", func(t *testing.T) {
 		char_reclaim(charID)
 
-		if valid_box(charID) {
-			t.Error("character should be deleted")
-		}
-
-		for _, id := range p.here_list {
-			if id == charID {
-				t.Error("character should be removed from here_list")
-			}
+		// char_reclaim now calls kill_char, which converts to T_deadchar (melt_me = TRUE)
+		if kind(charID) != T_deadchar {
+			t.Errorf("character should be converted to T_deadchar, got kind %d", kind(charID))
 		}
 	})
 
 	t.Run("handles non-character gracefully", func(t *testing.T) {
+		// kill_char returns early if not a character
 		char_reclaim(locID)
 	})
 }
@@ -469,11 +467,13 @@ func TestUnitDeserts(t *testing.T) {
 	p_char(charID).unit_lord = playerID
 	set_where(charID, locID)
 
-	t.Run("reclaims when to_who is 0", func(t *testing.T) {
+	t.Run("sets lord to 0 when to_who is 0", func(t *testing.T) {
 		unit_deserts(charID, 0, true, LOY_unsworn, 0)
 
-		if valid_box(charID) {
-			t.Error("character should be reclaimed when to_who is 0")
+		// unit_deserts sets lord to 0, doesn't delete the character
+		c := rp_char(charID)
+		if c.unit_lord != 0 {
+			t.Errorf("unit_lord after desert to 0 = %d, want 0", c.unit_lord)
 		}
 	})
 

@@ -35,22 +35,47 @@ func has_auraculum(who int) int {
 }
 
 // may_rule_here returns true if who may rule at location where.
-// Checks if any character owned by who's player is the location owner.
+// If where is a garrison, checks via the garrison's castle owner.
+// If where is a location, checks via province_admin chain.
 // Ported from src/garr.c lines 143-165.
 func may_rule_here(who, where int) bool {
 	pl := player(who)
 
-	if is_loc_or_ship(where) {
-		where = province(where)
-	}
-
-	for _, id := range loc_owner_list(where) {
-		if player(id) == pl {
+	admin := province_admin(where)
+	for admin > 0 {
+		if player(admin) == pl {
 			return true
 		}
+		admin = char_pledge(admin)
 	}
 	return false
 }
+
+// province_admin returns the administrator of a province or garrison.
+// For a province, looks up the garrison and its castle owner.
+// For a garrison, looks up its castle owner.
+// Ported from src/garr.c lines 74-98.
+func province_admin(n int) int {
+	var garr int
+
+	if kind(n) == T_loc {
+		garr = garrison_here(n)
+		if garr == 0 {
+			return 0
+		}
+	} else {
+		garr = n
+	}
+
+	castle := garrison_castle(garr)
+	if !valid_box(castle) {
+		return 0
+	}
+
+	return building_owner(castle)
+}
+
+// Note: char_pledge is defined in accessor.go
 
 // loc_owner_list returns a list of location owners for the given province.
 // This is a simplified implementation of loop_loc_owner from C.

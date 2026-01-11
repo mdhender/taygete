@@ -177,3 +177,5 @@ Aliases that translate to `move` commands.
 | w       | `v_west`  | `struct command *c` | `v_move(c)` | `w`           |
 | west    | `v_west`  | `struct command *c` | `v_move(c)` | `west`        |
 
+---
+

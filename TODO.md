@@ -136,10 +136,10 @@ NOTE: Full skill tree validation (offered/research lists) requires refactoring e
 - [x] Full port, integrate into turn end
 
 ### Sprint 25: u.c, c1.c/c2.c subset
-- [ ] See sprints/SPRINT25.md
+- [x] See sprints/SPRINT25.md
 
 ### Sprint 26: u.c, c1.c/c2.c remainder
-- [ ] See sprints/SPRINT26.md
+- [x] See sprints/SPRINT26.md
 
 ---
 

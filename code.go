@@ -420,10 +420,10 @@ func remove_next_chain(n int) {
 	if i == n {
 		teg.globals.box_head[k] = teg.globals.bx[n].x_next_kind
 	} else {
-		for i > 0 && teg.globals.bx[i].x_next_kind != n {
+		for i > 0 && teg.globals.bx[i] != nil && teg.globals.bx[i].x_next_kind != n {
 			i = teg.globals.bx[i].x_next_kind
 		}
-		if i > 0 {
+		if i > 0 && teg.globals.bx[i] != nil {
 			teg.globals.bx[i].x_next_kind = teg.globals.bx[n].x_next_kind
 		}
 	}
@@ -472,10 +472,10 @@ func remove_sub_chain(n int) {
 	if i == n {
 		teg.globals.sub_head[sk] = teg.globals.bx[n].x_next_sub
 	} else {
-		for i > 0 && teg.globals.bx[i].x_next_sub != n {
+		for i > 0 && teg.globals.bx[i] != nil && teg.globals.bx[i].x_next_sub != n {
 			i = teg.globals.bx[i].x_next_sub
 		}
-		if i > 0 {
+		if i > 0 && teg.globals.bx[i] != nil {
 			teg.globals.bx[i].x_next_sub = teg.globals.bx[n].x_next_sub
 		}
 	}

@@ -75,7 +75,8 @@ func IListRemValue(l *[]int, n int) {
 	}
 }
 
-// IListRemValueUniq removes the first occurrence of n from the list.
+// IListRemValueUniq removes the last occurrence of n from the list.
+// Searches from the back (largest index) to match original C behavior.
 func IListRemValueUniq(l *[]int, n int) {
 	for i := len(*l) - 1; i >= 0; i-- {
 		if (*l)[i] == n {
