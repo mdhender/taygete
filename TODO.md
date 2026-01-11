@@ -133,10 +133,14 @@ NOTE: Full skill tree validation (offered/research lists) requires refactoring e
 - [x] Tests for immediate operations
 
 ### Sprint 24: check.c
-- [ ] Full port, integrate into turn end
+- [x] Full port, integrate into turn end
 
-### Sprint 25–26: u.c, c1.c/c2.c subset
+### Sprint 25: u.c, c1.c/c2.c subset
 - [ ] Helper modules and easiest command implementations
+- [ ] Unit tests for those commands
+
+### Sprint 26: u.c, c1.c/c2.c remainder
+- [ ] Helper modules and command implementations
 - [ ] Unit tests for those commands
 
 ---
@@ -144,32 +148,32 @@ NOTE: Full skill tree validation (offered/research lists) requires refactoring e
 ## Phase 6 – Gameplay Subsystems (S27–S44)
 
 ### Movement & World (S27–S30)
-- [ ] S27: `move.c` core movement
-- [ ] S28: `dir.c` region/path utilities
-- [ ] S29: `faery.c`, `hades.c` special regions
-- [ ] S30: `tunnel.c` finishing edge cases
+- [ ] S27: `move.c` core movement and unit tests
+- [ ] S28: `dir.c` region/path utilities and unit tests
+- [ ] S29: `faery.c`, `hades.c` special regions and unit tests
+- [ ] S30: `tunnel.c` finishing edge cases and unit tests
 
 ### Economy & Construction (S31–S34)
-- [ ] S31: `basic.c` economic foundations
-- [ ] S32: `build.c` building creation/ownership
-- [ ] S33: `buy.c` trade interactions
-- [ ] S34: `produce.c`, `make.c` crafting/production
+- [ ] S31: `basic.c` economic foundations and unit tests
+- [ ] S32: `build.c` building creation/ownership and unit tests
+- [ ] S33: `buy.c` trade interactions and unit tests
+- [ ] S34: `produce.c`, `make.c` crafting/production and unit tests
 
 ### Combat & Stealth (S35–S38)
-- [ ] S35: `combat.c` core battle resolution
-- [ ] S36: `beast.c`, `savage.c` special combat/mobs
-- [ ] S37: `stealth.c`, `scry.c` mechanics
-- [ ] S38: `garr.c`, `npc.c` garrison & NPC AI
+- [ ] S35: `combat.c` core battle resolution and unit tests
+- [ ] S36: `beast.c`, `savage.c` special combat/mobs and unit tests
+- [ ] S37: `stealth.c`, `scry.c` mechanics and unit tests
+- [ ] S38: `garr.c`, `npc.c` garrison & NPC AI and unit tests
 
 ### Magic & Special (S39–S42)
-- [ ] S39: `alchem.c` alchemy & items
-- [ ] S40: `necro.c` necromancy
-- [ ] S41: `lore.c` knowledge tracking
-- [ ] S42: `relig.c`, `art.c`, `quest.c` religion/artifacts/quests
+- [ ] S39: `alchem.c` alchemy & items and unit tests
+- [ ] S40: `necro.c` necromancy and unit tests
+- [ ] S41: `lore.c` knowledge tracking and unit tests
+- [ ] S42: `relig.c`, `art.c`, `quest.c` religion/artifacts/quests and unit tests
 
 ### GM & Meta (S43–S44)
-- [ ] S43: `gm.c`, `perm.c` GM tools
-- [ ] S44: `add.c`, `pw.c` player onboarding & accounts
+- [ ] S43: `gm.c`, `perm.c` GM tools and unit tests
+- [ ] S44: `add.c`, `pw.c` player onboarding & accounts and unit tests
 
 ---
 
@@ -191,7 +195,7 @@ NOTE: Full skill tree validation (offered/research lists) requires refactoring e
 
 ## Phase 8 – CLI & Cleanup (S49–S50)
 
-### Sprint 49: cmd/olympia/main.go
+### Sprint 49: cmd/taygete/main.go
 - [ ] CLI for running turns, DB management
 - [ ] Tests for CLI
 

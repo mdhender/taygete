@@ -122,6 +122,14 @@ func (e *Engine) PostMonth() error {
 	e.checkTokenUnits()
 	e.determineNobleRanks()
 
+	// Database consistency check at turn end.
+	// This repairs minor issues and logs warnings.
+	// Ported from src/check.c - integrated here as part of Sprint 24.
+	checkResult := e.CheckDB()
+	if e.logger != nil {
+		LogCheckResult(e.logger, checkResult)
+	}
+
 	e.globals.post_has_been_run = true
 	return nil
 }

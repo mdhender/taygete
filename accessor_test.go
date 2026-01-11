@@ -672,6 +672,61 @@ func TestSkillAccessors(t *testing.T) {
 	}
 }
 
+func TestSkillSchool(t *testing.T) {
+	defer clearBx()
+	clearBx()
+
+	teg.globals.bx[sk_basic] = &box{
+		kind:  T_skill,
+		skind: sub_magic,
+		x_skill: &entity_skill{
+			time_to_learn: 7,
+		},
+	}
+
+	teg.globals.bx[100] = &box{
+		kind:  T_skill,
+		skind: 0,
+		x_skill: &entity_skill{
+			time_to_learn:  14,
+			required_skill: sk_basic,
+		},
+	}
+
+	teg.globals.bx[200] = &box{
+		kind:  T_skill,
+		skind: 0,
+		x_skill: &entity_skill{
+			time_to_learn:  21,
+			required_skill: 100,
+		},
+	}
+
+	if skill_school(sk_basic) != sk_basic {
+		t.Errorf("skill_school(sk_basic) = %d, want sk_basic", skill_school(sk_basic))
+	}
+
+	if skill_school(100) != sk_basic {
+		t.Errorf("skill_school(100) = %d, want sk_basic", skill_school(100))
+	}
+
+	if skill_school(200) != sk_basic {
+		t.Errorf("skill_school(200) = %d, want sk_basic", skill_school(200))
+	}
+
+	if !magic_skill(sk_basic) {
+		t.Error("magic_skill(sk_basic) should be true")
+	}
+
+	if !magic_skill(100) {
+		t.Error("magic_skill(100) should be true (inherits from magic school)")
+	}
+
+	if !magic_skill(200) {
+		t.Error("magic_skill(200) should be true (inherits from magic school via 100)")
+	}
+}
+
 func TestMiscAccessors(t *testing.T) {
 	defer clearBx()
 	clearBx()

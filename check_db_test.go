@@ -335,6 +335,127 @@ func TestCheckResult_Counts(t *testing.T) {
 	}
 }
 
+func TestCheckDB_SkillTreeValidation(t *testing.T) {
+	e := newTestEngine(t)
+
+	parentSkillID := 9500
+	alloc_box(parentSkillID, T_skill, sub_magic)
+	set_name(parentSkillID, "Magic School")
+	sk1 := p_skill(parentSkillID)
+	sk1.time_to_learn = 7
+
+	childSkillID := 9501
+	alloc_box(childSkillID, T_skill, 0)
+	set_name(childSkillID, "Child Spell")
+	sk2 := p_skill(childSkillID)
+	sk2.time_to_learn = 14
+	sk2.required_skill = parentSkillID
+
+	sk1.offered = []int{childSkillID}
+
+	result := e.CheckDB()
+
+	for _, issue := range result.Issues {
+		if issue.Type == "warning" && issue.Message == "non-offered skill Child Spell~[9501]" {
+			t.Error("child skill should not be flagged as non-offered")
+		}
+	}
+
+	if skill_school(childSkillID) != parentSkillID {
+		t.Errorf("skill_school(%d) = %d, want %d", childSkillID, skill_school(childSkillID), parentSkillID)
+	}
+}
+
+func TestCheckDB_OrphanedSubskill(t *testing.T) {
+	e := newTestEngine(t)
+
+	orphanID := 9100
+	alloc_box(orphanID, T_skill, 0)
+	set_name(orphanID, "Orphan Skill")
+	sk := p_skill(orphanID)
+	sk.time_to_learn = 7
+
+	result := e.CheckDB()
+
+	foundWarning := false
+	for _, issue := range result.Issues {
+		if issue.Type == "warning" && issue.Message == "orphaned subskill [9100]" {
+			foundWarning = true
+			break
+		}
+	}
+	if !foundWarning {
+		t.Error("expected warning about orphaned subskill")
+	}
+}
+
+func TestCheckDB_SkillOfferedByMultipleParents(t *testing.T) {
+	e := newTestEngine(t)
+
+	parent1ID := 9000
+	alloc_box(parent1ID, T_skill, sub_magic)
+	set_name(parent1ID, "School A")
+	sk1 := p_skill(parent1ID)
+	sk1.time_to_learn = 7
+
+	parent2ID := 9100
+	alloc_box(parent2ID, T_skill, sub_magic)
+	set_name(parent2ID, "School B")
+	sk2 := p_skill(parent2ID)
+	sk2.time_to_learn = 7
+
+	childID := 9001
+	alloc_box(childID, T_skill, 0)
+	set_name(childID, "Shared Child")
+	skChild := p_skill(childID)
+	skChild.time_to_learn = 14
+	skChild.required_skill = parent1ID
+
+	sk1.offered = []int{childID}
+	sk2.offered = []int{childID}
+
+	result := e.CheckDB()
+
+	foundMultipleOffered := false
+	for _, issue := range result.Issues {
+		if issue.Type == "warning" && (issue.Message == "both School B~[9100] and School A~[9000] offer skill [9001]" ||
+			issue.Message == "both School A~[9000] and School B~[9100] offer skill [9001]") {
+			foundMultipleOffered = true
+			break
+		}
+	}
+	if !foundMultipleOffered {
+		for _, issue := range result.Issues {
+			if issue.Type == "warning" {
+				t.Logf("warning: %s", issue.Message)
+			}
+		}
+		t.Error("expected warning about skill offered by multiple parents")
+	}
+}
+
+func TestPostMonth_IntegratesCheckDB(t *testing.T) {
+	e := newTestEngine(t)
+
+	e.globals.bx[indep_player] = nil
+	e.globals.bx[gm_player] = nil
+
+	e.globals.post_has_been_run = false
+	e.globals.sysclock.turn = 1
+
+	err := e.PostMonth()
+	if err != nil {
+		t.Fatalf("PostMonth returned error: %v", err)
+	}
+
+	if kind(indep_player) != T_player {
+		t.Error("PostMonth did not create indep_player via CheckDB")
+	}
+	if kind(gm_player) != T_player {
+		t.Error("PostMonth did not create gm_player via CheckDB")
+	}
+}
+
 // newTestEngine creates a fresh Engine for testing.
 func newTestEngine(t *testing.T) *Engine {
 	t.Helper()

@@ -965,6 +965,26 @@ func learn_time(n int) int {
 	return sk.time_to_learn
 }
 
+// skill_school returns the root school/category for a skill.
+// If the skill has no parent (req_skill), it returns itself.
+// Ported from src/use.c skill_school().
+func skill_school(sk int) int {
+	for count := 0; count < 1000; count++ {
+		n := req_skill(sk)
+		if n == 0 {
+			return sk
+		}
+		sk = n
+	}
+	return sk
+}
+
+// magic_skill returns true if the skill belongs to a magic school.
+// Ported from src/oly.h macro: #define magic_skill(n) (subkind(skill_school(n)) == sub_magic)
+func magic_skill(n int) bool {
+	return subkind(skill_school(n)) == sub_magic
+}
+
 func banner(n int) *char {
 	m := rp_misc(n)
 	if m == nil {
