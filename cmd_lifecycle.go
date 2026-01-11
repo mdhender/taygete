@@ -1,4 +1,18 @@
-// Copyright (c) 2026 Michael D Henderson. All rights reserved.
+// taygete - a game engine for a game.
+// Copyright (c) 2026 Michael D Henderson.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package taygete
 
@@ -20,9 +34,9 @@ const MAX_PRI = 5
 // commandQueues holds the scheduling queues for command execution.
 // These are runtime-only (not saved to DB).
 type commandQueues struct {
-	loadQ [MAX_PRI][]int // units with commands in STATE_LOAD, by priority
-	runQ  []int          // units with commands in STATE_RUN
-	curPri int           // current priority being processed
+	loadQ  [MAX_PRI][]int // units with commands in STATE_LOAD, by priority
+	runQ   []int          // units with commands in STATE_RUN
+	curPri int            // current priority being processed
 }
 
 // initCommandQueues initializes the command scheduling queues.
@@ -121,9 +135,10 @@ func (e *Engine) get_command(who int) (string, bool) {
 // Port of C load_command() from input.c.
 //
 // Sets c.state to:
-//   STATE_DONE  - no more commands remain in the queue
-//   STATE_LOAD  - command loaded and ready to run
-//   STATE_ERROR - player command has an error
+//
+//	STATE_DONE  - no more commands remain in the queue
+//	STATE_LOAD  - command loaded and ready to run
+//	STATE_ERROR - player command has an error
 func (e *Engine) load_command(c *command) bool {
 	if c == nil {
 		return false

@@ -1,4 +1,18 @@
-// Copyright (c) 2026 Michael D Henderson. All rights reserved.
+// taygete - a game engine for a game.
+// Copyright (c) 2026 Michael D Henderson.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package taygete
 
@@ -153,10 +167,10 @@ func (e *Engine) olytimeIncrement() {
 // Stubbed handlers for ProcessOrders
 // These will be fully implemented in later sprints.
 
-func (e *Engine) initLocsTouched()         {} // stub
-func (e *Engine) initWeatherViews()        {} // stub
-func (e *Engine) initWaitList()    {} // stub
-func (e *Engine) initCollectList() {} // stub
+func (e *Engine) initLocsTouched()  {} // stub
+func (e *Engine) initWeatherViews() {} // stub
+func (e *Engine) initWaitList()     {} // stub
+func (e *Engine) initCollectList()  {} // stub
 
 // initialCommandLoad loads initial commands for all characters and players.
 // Port of C initial_command_load() from input.c.
@@ -169,7 +183,7 @@ func (e *Engine) checkTokenUnits()         {} // stub
 func (e *Engine) processInterruptedUnits() {} // stub
 func (e *Engine) processPlayerOrders()     {} // stub
 func (e *Engine) scanCharItemLore()        {} // stub
-func (e *Engine) matchAllTrades() {} // stub
+func (e *Engine) matchAllTrades()          {} // stub
 
 // dailyCommandLoop runs the command processing loop for one day.
 // Port of C daily_loop logic from input.c.

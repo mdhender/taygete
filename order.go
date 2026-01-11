@@ -1,4 +1,18 @@
-// Copyright (c) 2026 Michael D Henderson. All rights reserved.
+// taygete - a game engine for a game.
+// Copyright (c) 2026 Michael D Henderson.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package taygete
 
@@ -17,11 +31,11 @@ import (
 // OrderEntry represents a single order for a unit.
 // In the C code, this was a char* in order_list.l plist.
 type OrderEntry struct {
-	ID           int    // Database ID (from orders table)
-	TurnNumber   int    // Turn this order is for
-	PlayerID     int    // Player who submitted the order
-	UnitID       int    // Unit (character) the order is for
-	RawText      string // The raw order text
+	ID            int    // Database ID (from orders table)
+	TurnNumber    int    // Turn this order is for
+	PlayerID      int    // Player who submitted the order
+	UnitID        int    // Unit (character) the order is for
+	RawText       string // The raw order text
 	SourceChannel string // Where the order came from (email, web, etc.)
 }
 
@@ -248,11 +262,11 @@ func (e *Engine) LoadOrders(turnNumber int) error {
 		}
 
 		entry := &OrderEntry{
-			ID:           id,
-			TurnNumber:   turn,
-			PlayerID:     playerID,
-			UnitID:       who,
-			RawText:      rawText,
+			ID:         id,
+			TurnNumber: turn,
+			PlayerID:   playerID,
+			UnitID:     who,
+			RawText:    rawText,
 		}
 		if sourceChannel.Valid {
 			entry.SourceChannel = sourceChannel.String

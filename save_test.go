@@ -1,4 +1,18 @@
-// Copyright (c) 2026 Michael D Henderson. All rights reserved.
+// taygete - a game engine for a game.
+// Copyright (c) 2026 Michael D Henderson.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package taygete
 
@@ -374,10 +388,10 @@ func TestSaveWorldCharacterMagic(t *testing.T) {
 		loy_rate: 50,
 	}
 	e.globals.bx[2001].x_char.x_char_magic = &char_magic{
-		cur_aura:   7,
-		max_aura:   15,
-		hide_mage:  1,
-		hide_self:  1,
+		cur_aura:    7,
+		max_aura:    15,
+		hide_mage:   1,
+		hide_self:   1,
 		vis_protect: 2,
 	}
 	e.globals.names[2001] = "Mage Test"

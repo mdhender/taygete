@@ -1,4 +1,18 @@
-// Copyright (c) 2026 Michael D Henderson. All rights reserved.
+// taygete - a game engine for a game.
+// Copyright (c) 2026 Michael D Henderson.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package taygete
 
@@ -36,9 +50,9 @@ type Engine struct {
 		evening           bool // are we in the evening phase?
 
 		// String storage - Go uses strings, not char pointers
-		names        map[int]string // entity names by ID
-		banners      map[int]string // display banners by ID
-		pluralNames  map[int]string // item plural names by ID
+		names       map[int]string // entity names by ID
+		banners     map[int]string // display banners by ID
+		pluralNames map[int]string // item plural names by ID
 
 		// Skill storage - workaround for C-style **skill_ent plist
 		charSkills map[int][]*skill_ent // character skills by char ID
@@ -61,6 +75,9 @@ type Engine struct {
 		cmdQueues      *commandQueues // scheduling queues for command execution
 		immediate      bool           // true during immediate command execution
 		autoAttackFlag bool           // check for auto-attacks once per day
+
+		// Immediate mode state (from immed.c - Sprint 23)
+		immedSeeAll bool // reveal all hidden features in immediate mode
 	}
 }
 
