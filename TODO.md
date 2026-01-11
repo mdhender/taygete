@@ -117,8 +117,8 @@ NOTE: Full skill tree validation (offered/research lists) requires refactoring e
 - [x] SKIP – browser submits structured orders directly to DB
 
 ### Sprint 20: order.c
-- [ ] In-memory order representation, scheduling (structure only, no text parsing)
-- [ ] Load orders from DB `orders` table
+- [x] In-memory order representation, scheduling (structure only, no text parsing)
+- [x] Load orders from DB `orders` table
 
 ### Sprint 21: day.c skeleton
 - [ ] `process_orders`, `post_month` with stubbed handlers

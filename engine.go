@@ -48,6 +48,10 @@ type Engine struct {
 
 		// Inventory storage - workaround for C-style **item_ent in box
 		inventories map[int][]item_ent
+
+		// Order queues - maps player ID -> (unit ID -> OrderQueue)
+		// Replaces C entity_player.orders plist
+		orderQueues map[int]map[int]*OrderQueue
 	}
 }
 
