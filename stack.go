@@ -772,21 +772,14 @@ func vector_stack(who int, clear bool) {
 	// TODO: Implement in later sprint (output/reporting)
 }
 
-// Deprecated: vector_add not yet implemented.
-func vector_add(who int) {
-	// TODO: Implement in later sprint (output/reporting)
-}
+// Note: vector_add implemented in destruction.go
 
 // Deprecated: touch_loc not yet implemented.
 func touch_loc(who int) {
 	// TODO: Implement in later sprint (day.c)
 }
 
-// Deprecated: find_nearest_land not yet implemented.
-func find_nearest_land(where int) int {
-	// TODO: Implement in later sprint (movement)
-	return 0
-}
+// Note: find_nearest_land implemented in destruction.go
 
 // Deprecated: move_stack not yet implemented.
 func move_stack(who, dest int) {
@@ -817,60 +810,44 @@ func set_loyal(who, k, lev int) {
 }
 
 // unit_deserts handles a unit deserting to a new player.
-// Ported from src/swear.c (simplified implementation for Sprint 25.8).
+// Ported from src/swear.c lines 304-343.
 func unit_deserts(who, to_who int, loy_check bool, k, lev int) {
-	if to_who == 0 {
-		char_reclaim(who)
-		return
+	sp := player(who)
+
+	if to_who != 0 && sp != 0 {
+		wout(sp, "%s renounces loyalty to us.", box_name(who))
+		wout(who, "%s renounces loyalty.", box_name(who))
+	}
+
+	if to_who != 0 && is_prisoner(who) && player(to_who) == player(stack_parent(who)) {
+		p_char(who).prisoner = FALSE
+	} else if !is_prisoner(who) {
+		extract_stacked_unit(who)
 	}
 
 	set_lord(who, to_who, k, lev)
+
+	if to_who != 0 {
+		wout(who, "%s pledges fealty to us.", box_name(who))
+		wout(to_who, "%s pledges fealty to us.", box_name(who))
+		p_char(who).new_lord = 1
+	}
 }
 
-// char_reclaim removes a character from the game, freeing resources.
-// Ported from src/u.c lines 83-92.
+// char_reclaim marks a character for melting and triggers death.
+// Used by QUIT/RECLAIM commands.
+// Ported from src/u.c lines 82-92.
 func char_reclaim(who int) {
-	if kind(who) != T_char {
-		return
-	}
-
-	leave_stack(who)
-
-	old_loc := loc(who)
-	if old_loc > 0 {
-		remove_from_here_list(old_loc, who)
-		p_loc_info(who).where = 0
-	}
-
-	delete_box(who)
+	p_char(who).melt_me = TRUE
+	kill_char(who, 0) // QUIT shouldn't give items to stackmates
 }
 
-// Deprecated: put_back_cookie not yet implemented.
-func put_back_cookie(who int) {
-	// TODO: Implement in later sprint (npc)
-}
+// Note: put_back_cookie is implemented in lifecycle.go
+// Note: take_unit_items is implemented in lifecycle.go
+// Note: interrupt_order is implemented in lifecycle.go
 
-// Deprecated: take_unit_items not yet implemented.
-func take_unit_items(from, to, how int) {
-	// TODO: Implement in later sprint (items)
-}
-
-// Deprecated: interrupt_order not yet implemented.
-func interrupt_order(who int) {
-	// TODO: Implement in later sprint (orders)
-}
-
-// Deprecated: check_char_gone not yet implemented.
-func check_char_gone(who, target int) bool {
-	// TODO: Implement in later sprint (movement)
-	return true
-}
-
-// Deprecated: check_char_here not yet implemented.
-func check_char_here(who, target int) bool {
-	// TODO: Implement in later sprint (movement)
-	return true
-}
+// Note: check_char_gone is implemented in visibility.go
+// Note: check_char_here is implemented in visibility.go
 
 // Deprecated: will_admit not yet implemented.
 func will_admit(who, target, where int) bool {

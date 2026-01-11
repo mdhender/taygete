@@ -93,9 +93,9 @@ type entity_player struct {
 	/* this faction */
 	known sparse /* visited, lore seen, encountered */
 
-	units    ilist   /* what units are in our faction? */
+	units    IList   /* what units are in our faction? */
 	admits   **admit /* admit permissions list */
-	unformed ilist   /* nobles as yet unformed */
+	unformed IList   /* nobles as yet unformed */
 
 	split_lines int   /* split mail at this many lines */
 	split_bytes int   /* split mail at this many bytes */
@@ -119,7 +119,7 @@ type entity_player struct {
 	cmd_count       short  /* count of cmds started this turn */
 	np_gained       short  /* np's added this turn -- not saved */
 	np_spent        short  /* np's lost this turn -- not saved */
-	deliver_lore    ilist  /* show these to player -- not saved */
+	deliver_lore    IList  /* show these to player -- not saved */
 	weather_seen    sparse /* locs we've viewed the weather */
 	output          sparse /* units with output -- not saved */
 	locs            sparse /* locs we touched -- not saved */
@@ -137,9 +137,9 @@ type accept_ent struct {
 }
 
 type att_ent struct {
-	neutral ilist
-	hostile ilist
-	defend  ilist
+	neutral IList
+	hostile IList
+	defend  IList
 }
 
 type entity_char struct {
@@ -160,7 +160,7 @@ type entity_char struct {
 	unit_lord int /* who is our owner? */
 	prev_lord int /* who was our previous owner? */
 
-	contact ilist /* who have we contacted, also, who has found us */
+	contact []int /* who have we contacted, also, who has found us */
 
 	x_char_magic *char_magic
 
@@ -181,7 +181,7 @@ type entity_char struct {
 	fresh_hire schar        /* don't erode loyalty */
 	new_lord   schar        /* got a new lord this turn */
 	studied    schar        /* num days we studied */
-	accept     **accept_ent /* what we can be given */
+	accept     []*accept_ent /* what we can be given */
 }
 
 type char_magic struct {
@@ -213,7 +213,7 @@ type char_magic struct {
 
 	mage_worked   schar /* worked this month -- not saved */
 	ferry_flag    schar /* ferry has tooted its horn -- ns */
-	pledged_to_us ilist /* temp -- not saved */
+	pledged_to_us IList /* temp -- not saved */
 }
 
 type skill_ent struct {
@@ -233,7 +233,7 @@ type item_ent struct {
 }
 
 type entity_loc struct {
-	prov_dest      ilist /* province destinations */
+	prov_dest      []int /* province destinations */
 	shroud         short /* magical scry shroud */
 	barrier        short /* magical barrier */
 	civ            schar /* civilization level (0 = wild) */
@@ -244,7 +244,7 @@ type entity_loc struct {
 }
 
 type entity_subloc struct {
-	teaches    ilist /* skills location offers */
+	teaches    IList /* skills location offers */
 	opium_econ int   /* addiction level of city */
 	defense    int   /* defense rating of structure */
 
@@ -262,7 +262,7 @@ type entity_subloc struct {
 	moving   int /* daystamp of beginning of movement */
 	capacity int /* capacity of ship */
 
-	near_cities  ilist /* cities rumored to be nearby */
+	near_cities  IList /* cities rumored to be nearby */
 	safe         schar /* safe haven */
 	major        schar /* major city */
 	prominence   schar /* prominence of city */
@@ -273,9 +273,9 @@ type entity_subloc struct {
 
 	link_when    schar /* month link is open, -1 = never */
 	link_open    schar /* link is open now */
-	link_to      ilist /* where we are linked to */
-	link_from    ilist /* where we are linked from */
-	bound_storms ilist /* storms bound to this ship */
+	link_to      []int /* where we are linked to */
+	link_from    []int /* where we are linked from */
+	bound_storms []int /* storms bound to this ship */
 }
 
 type entity_item struct {
@@ -309,8 +309,8 @@ type item_magic struct {
 	cloak_creator schar
 	use_key       schar /* special use action */
 
-	may_use   ilist /* list of usable skills via this */
-	may_study ilist /* list of skills studying from this */
+	may_use   IList /* list of usable skills via this */
+	may_study IList /* list of skills studying from this */
 
 	project_cast int   /* stored projected cast */
 	token_ni     int   /* ni for controlled npc units */
@@ -387,8 +387,8 @@ type entity_misc struct {
 	opium_double schar  /* improved opium production -- not saved */
 	post_txt     **char /* text of posted sign -- not saved */
 	storm_move   int    /* next loc storm will move to -- not saved */
-	garr_watch   ilist  /* units garrison watches for -- not saved */
-	garr_host    ilist  /* units garrison will attack -- not saved */
+	garr_watch   IList  /* units garrison watches for -- not saved */
+	garr_host    IList  /* units garrison will attack -- not saved */
 	garr_tax     int    /* garrison taxes collected -- not saved */
 	garr_forward int    /* garrison taxes forwarded -- not saved */
 }
@@ -469,7 +469,7 @@ type trade struct {
 type admit struct {
 	targ  int /* char or loc admit is declared for */
 	sense int /* 0=default no, 1=all but.. */
-	l     ilist
+	l     IList
 
 	flag int /* first time set this turn -- not saved */
 }
