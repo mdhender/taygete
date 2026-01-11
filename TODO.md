@@ -145,8 +145,10 @@ NOTE: Full skill tree validation (offered/research lists) requires refactoring e
 
 ## Phase 6 – Gameplay Subsystems (S27–S44)
 
+Agents are encouraged to refactor lists to use Go slices or the `List` data structure instead of C-style ilist pointers. This will make the code easier to read and maintain. If you must use C-style ilists, remember that Go provides `len()` and `cap()` functions to get the length and capacity of a slice.
+
 ### Movement & World (S27–S30)
-- [ ] S27: `move.c` core movement and unit tests
+- [x] S27: `move.c` core movement and unit tests
 - [ ] S28: `dir.c` region/path utilities and unit tests
 - [ ] S29: `faery.c`, `hades.c` special regions and unit tests
 - [ ] S30: `tunnel.c` finishing edge cases and unit tests
